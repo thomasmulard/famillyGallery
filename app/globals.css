@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 35 20% 96%;
+    --foreground: 30 10% 15%;
+    --card: 0 0% 100%;
+    --border: 32 15% 90%;
+    --muted: 35 20% 96%;
+    --muted-foreground: 30 8% 42%;
+    --primary: 28 20% 45%;
+    --primary-foreground: 35 25% 98%;
+    --secondary: 45 20% 52%;
+    --secondary-foreground: 30 10% 15%;
+    --accent: 30 38% 65%;
+    --accent-foreground: 30 10% 15%;
+  }
+
+  .dark {
+    --background: 30 10% 10%;
+    --foreground: 35 20% 95%;
+    --card: 30 8% 12%;
+    --border: 30 8% 20%;
+    --muted: 30 8% 15%;
+    --muted-foreground: 30 8% 65%;
+    --primary: 28 25% 55%;
+    --primary-foreground: 35 25% 98%;
+    --secondary: 45 20% 45%;
+    --secondary-foreground: 35 20% 95%;
+    --accent: 30 38% 50%;
+    --accent-foreground: 35 20% 95%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+  }
+}
+
+@layer utilities {
+  /* Optimisations des performances */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  /* Amélioration du rendu des images */
+  img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+
+  /* Optimisation pour Firefox */
+  @supports (-moz-appearance: none) {
+    img {
+      image-rendering: auto;
+    }
+  }
+
+  /* Scroll plus fluide */
+  * {
+    scroll-behavior: smooth;
+  }
+
+  /* Réduire les animations pour les utilisateurs qui les désactivent */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Optimisation du chargement des polices */
+@font-face {
+  font-display: swap;
+}
