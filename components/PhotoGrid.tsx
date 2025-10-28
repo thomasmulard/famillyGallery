@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Heart, Share2, MapPin, Calendar } from 'lucide-react'
 import { Photo, ViewMode } from '@/types'
@@ -57,14 +56,12 @@ export default function PhotoGrid({ photos, viewMode, onPhotoClick }: PhotoGridP
             onClick={() => onPhotoClick(photo)}
           >
             <div className="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden">
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={photo.thumbnail || photo.src}
                 alt={photo.title}
-                fill
-                className="object-cover"
+                className="w-full h-full object-cover"
                 loading={index < 10 ? "eager" : "lazy"}
-                quality={60}
-                sizes="96px"
               />
             </div>
             <div className="flex-1 min-w-0">
@@ -151,7 +148,7 @@ export default function PhotoGrid({ photos, viewMode, onPhotoClick }: PhotoGridP
             delay: index * 0.02,
             ease: "easeOut"
           }}
-          className={`group relative bg-card rounded-2xl overflow-hidden border border-border shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer ${
+          className={`group relative bg-card rounded-lg overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer ${
             viewMode === 'masonry' ? 'break-inside-avoid mb-4 inline-block w-full' : ''
           }`}
           onClick={() => onPhotoClick(photo)}
@@ -161,35 +158,24 @@ export default function PhotoGrid({ photos, viewMode, onPhotoClick }: PhotoGridP
               ? getMasonryHeight(index)
               : cardSizeConfig[viewMode as keyof typeof cardSizeConfig]
           }`}>
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={photo.thumbnail || photo.src}
               alt={photo.title}
-              fill
-              sizes={
-                viewMode === 'compact' 
-                  ? '(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 16vw'
-                  : viewMode === 'spacious'
-                  ? '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
-                  : '(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw'
-              }
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
               loading={index < 8 ? "eager" : "lazy"}
-              priority={index < 4}
-              quality={75}
-              placeholder="blur"
-              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
             />
             
             {/* Overlay - masqué en mode compact */}
             {viewMode !== 'compact' && (
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className={`absolute bottom-0 left-0 right-0 text-white ${paddingConfig[viewMode as keyof typeof paddingConfig]}`}>
-                  <h3 className={`font-semibold mb-1 ${viewMode === 'spacious' ? 'text-xl' : 'text-lg'}`}>
+                  <h3 className={`font-semibold mb-1 drop-shadow-md ${viewMode === 'spacious' ? 'text-xl' : 'text-base'}`}>
                     {photo.title}
                   </h3>
-                  <p className="text-sm text-white/80">{photo.date}</p>
+                  <p className="text-sm text-white/90">{photo.date}</p>
                   {viewMode === 'spacious' && photo.location && (
-                    <p className="text-sm text-white/70 flex items-center gap-1 mt-1">
+                    <p className="text-sm text-white/80 flex items-center gap-1 mt-1">
                       <MapPin size={14} />
                       {photo.location}
                     </p>

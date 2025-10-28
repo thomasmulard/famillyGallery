@@ -22,32 +22,38 @@ const ReplyForm: React.FC<ReplyFormProps> = ({ parentId, photoId, onReply, onCan
   };
 
   return (
-    <form onSubmit={handleReply} className="mt-2 flex gap-2 items-center">
-      <input
-        type="text"
-        value={reply}
-        onChange={e => setReply(e.target.value)}
-        placeholder="Écrire une réponse..."
-        className="flex-1 px-2 py-1 text-xs bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
-        autoFocus
-      />
-      <button
-        type="submit"
-        disabled={!reply.trim() || loading}
-        className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
-      >
-        {loading ? 'Envoi...' : 'Publier'}
-      </button>
-      {onCancel && (
+    <form onSubmit={handleReply} className="mt-2 flex flex-col gap-2 items-stretch">
+      <div className="flex items-center mb-1">
+        <span style={{ color: '#F44336', fontSize: '2rem', marginRight: '8px' }}>♥</span>
+        <span className="font-bold text-base">1 like</span>
+      </div>
+      <div className="flex gap-2 items-center">
+        <input
+          type="text"
+          value={reply}
+          onChange={e => setReply(e.target.value)}
+          placeholder="Écrire une réponse..."
+          className="flex-1 px-2 py-1 text-xs bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+          autoFocus
+        />
         <button
-          type="button"
-          onClick={onCancel}
-          className="p-1 text-muted-foreground hover:text-foreground transition-colors"
-          aria-label="Annuler"
+          type="submit"
+          disabled={!reply.trim() || loading}
+          className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
         >
-          <X size={16} />
+          {loading ? 'Envoi...' : 'Publier'}
         </button>
-      )}
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Annuler"
+          >
+            <X size={16} />
+          </button>
+        )}
+      </div>
     </form>
   );
 };

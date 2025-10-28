@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Key, Eye, EyeOff, CheckCircle2, XCircle } from 'lucide-react'
+import { useToast } from '@/components/ui/toast'
 
 export default function FirstLoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const username = searchParams.get('username')
+  const { success, error: errorToast } = useToast()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -51,14 +53,17 @@ export default function FirstLoginPage() {
 
       if (!res.ok) {
         setError(data.error || 'Erreur lors de la définition du mot de passe')
+        errorToast(data.error || 'Erreur lors de la définition du mot de passe')
         setLoading(false)
         return
       }
 
       // Rediriger vers login avec message de succès
+      success('Mot de passe défini, vous pouvez vous connecter')
       router.push('/login?success=password-set')
     } catch (err) {
       setError('Erreur lors de la définition du mot de passe')
+      errorToast('Erreur lors de la définition du mot de passe')
       setLoading(false)
     }
   }

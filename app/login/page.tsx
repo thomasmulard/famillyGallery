@@ -1,12 +1,15 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { LogIn, Eye, EyeOff, Images, ChevronDown, Check } from 'lucide-react'
+import { useToast } from '@/components/ui/toast'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { success, error: errorToast } = useToast()
+  const searchParams = useSearchParams()
   const [username, setUsername] = useState('')
   const [users, setUsers] = useState<Array<{ id: number; email: string; username: string; first_name: string | null; last_name: string | null; avatar_url: string | null; is_first_login: boolean; displayName: string }>>([])
   const [query, setQuery] = useState('')
@@ -42,6 +45,14 @@ export default function LoginPage() {
     )
   }, [users, query])
 
+  // Afficher un toast si retour depuis first-login
+  useEffect(() => {
+    const s = searchParams.get('success')
+    if (s === 'password-set') {
+      success('Votre mot de passe a été défini')
+    }
+  }, [searchParams, success])
+
   // Gestion sélection
   const selectUser = (u: (typeof users)[number]) => {
     setQuery(u.displayName || u.username)
@@ -70,15 +81,18 @@ export default function LoginPage() {
 
       if (!res.ok) {
         setError(data.error || 'Erreur de connexion')
+        errorToast(data.error || 'Erreur de connexion')
         setLoading(false)
         return
       }
 
       // Rediriger vers l'accueil
+      success('Connexion réussie')
       router.push('/')
       router.refresh()
     } catch (err) {
       setError('Erreur de connexion')
+      errorToast('Erreur de connexion')
       setLoading(false)
     }
   }

@@ -42,35 +42,37 @@ const CommentThread: React.FC<CommentThreadProps> = ({
 }) => {
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const thread = comments.filter(c => c.parentId === parentId);
-  const isNested = depth > 0;
   
-  // Tailles adaptatives selon la profondeur
-  const avatarSize = isNested ? 'w-6 h-6' : 'w-8 h-8';
-  const textSize = isNested ? 'text-xs' : 'text-sm';
-  const nameSize = isNested ? 'text-xs' : 'text-sm';
-  const dateSize = 'text-xs';
+  // Indentation uniquement au premier niveau de réponse (depth === 1)
+  // Tous les niveaux suivants restent alignés
+  const shouldIndent = depth === 1;
   
   return (
     <>
       {thread.map((c) => (
-        <div key={c.id} className={`${isNested ? 'ml-6 pl-4 border-l-2 border-border/50' : ''}`}>
-          <div className="flex items-start gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors group">
+        <div key={c.id} className={shouldIndent ? 'ml-10 relative' : ''}>
+          {/* Ligne de connexion pour le premier niveau de réponse seulement */}
+          {shouldIndent && (
+            <div className="absolute left-0 top-0 bottom-0 w-px bg-border/50" />
+          )}
+          
+          <div className={`flex items-start gap-3 p-3 rounded-lg hover:bg-muted/30 transition-colors group ${shouldIndent ? 'ml-4' : ''}`}>
             {c.user.avatar_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img 
                 src={c.user.avatar_url} 
                 alt={c.user.username} 
-                className={`${avatarSize} rounded-full object-cover flex-shrink-0 mt-0.5`} 
+                className="w-8 h-8 rounded-full object-cover flex-shrink-0" 
               />
             ) : (
-              <div className={`${avatarSize} rounded-full bg-primary/15 text-primary flex items-center justify-center text-xs font-semibold flex-shrink-0 mt-0.5`}>
+              <div className="w-8 h-8 rounded-full bg-primary/15 text-primary flex items-center justify-center text-sm font-semibold flex-shrink-0">
                 {getInitials(c.user)}
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className={`${nameSize} font-medium`}>{displayName(c.user)}</span>
-                <span className={`${dateSize} text-muted-foreground`}>
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <span className="text-sm font-semibold">{displayName(c.user)}</span>
+                <span className="text-xs text-muted-foreground">
                   {new Date(c.created_at).toLocaleDateString('fr-FR', { 
                     day: 'numeric', 
                     month: 'short',
@@ -79,15 +81,16 @@ const CommentThread: React.FC<CommentThreadProps> = ({
                   })}
                 </span>
               </div>
-              <p className={`${textSize} text-foreground mt-0.5`}>{c.content}</p>
+              
+              <p className="text-sm text-foreground leading-relaxed">{c.content}</p>
               
               {/* Bouton répondre */}
-              <div className="mt-1 flex items-center gap-2">
+              <div className="mt-2 flex items-center gap-3">
                 <button
                   onClick={() => setReplyingTo(replyingTo === c.id ? null : c.id)}
-                  className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
+                  className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
                 >
-                  <Reply size={12} />
+                  <Reply size={14} />
                   Répondre
                 </button>
               </div>
@@ -112,7 +115,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({
                 aria-label="Supprimer"
                 title={currentUser.is_admin && c.user.id !== currentUser.id ? "Supprimer (Admin)" : "Supprimer"}
               >
-                <Trash2 size={isNested ? 12 : 14} />
+                <Trash2 size={14} />
               </button>
             )}
           </div>

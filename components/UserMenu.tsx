@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { useToast } from '@/components/ui/toast'
 
 interface SessionUser {
   id: number
@@ -23,6 +24,7 @@ interface SessionUser {
 
 export default function UserMenu({ variant = 'header' as 'header' | 'footer' }: { variant?: 'header' | 'footer' }) {
   const [user, setUser] = useState<SessionUser | null>(null)
+  const { success, error } = useToast()
 
   useEffect(() => {
     let mounted = true
@@ -63,8 +65,9 @@ export default function UserMenu({ variant = 'header' as 'header' | 'footer' }: 
   const logout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' })
+      success('Vous êtes déconnecté')
     } catch {
-      // ignore
+      error('Erreur lors de la déconnexion')
     } finally {
       window.location.href = '/login'
     }

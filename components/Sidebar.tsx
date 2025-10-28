@@ -3,6 +3,7 @@
 import { X, Home, FolderOpen, Images, Upload, Settings, Shield } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import ThemeToggle from './ThemeToggle'
+import UserMenu from './UserMenu'
 
 interface SidebarProps {
   currentPage: string
@@ -111,7 +112,7 @@ export default function Sidebar({ currentPage, onPageChange, isOpen, onClose }: 
 
         {/* Footer utilisateur */}
         <div className="mt-6 pt-4 border-t border-border">
-          {/* TODO: Ajouter UserMenu component */}
+          <UserMenu variant="footer" />
         </div>
       </aside>
     </>

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   description: 'Découvrez tous nos moments précieux en famille',
   manifest: '/manifest.json',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/favicon.svg',
   },
 }
 

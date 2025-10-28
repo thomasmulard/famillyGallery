@@ -15,14 +15,16 @@ export async function GET(request: NextRequest) {
     const albums = db
       .prepare(`
         SELECT a.id, a.title, a.description, a.cover_photo_id, a.is_shared, a.created_at, a.updated_at,
+               a.user_id as owner_id, u.username as owner_username, u.first_name as owner_first_name, u.last_name as owner_last_name,
                (SELECT COUNT(*) FROM photos p WHERE p.album_id = a.id) as photo_count,
                cp.path as cover_path, cp.thumbnail_path as cover_thumbnail
         FROM albums a
+        JOIN users u ON u.id = a.user_id
         LEFT JOIN photos cp ON cp.id = a.cover_photo_id
-        WHERE a.user_id = ?
+        WHERE a.user_id = ? OR (a.is_shared = 1 AND a.user_id != ?)
         ORDER BY a.updated_at DESC
       `)
-      .all(session.user.id)
+      .all(session.user.id, session.user.id)
       .map((row: any) => ({
         id: row.id,
         title: row.title,
@@ -34,6 +36,13 @@ export async function GET(request: NextRequest) {
         photo_count: Number(row.photo_count || 0),
         cover_path: row.cover_path,
         cover_thumbnail: row.cover_thumbnail,
+        owned: row.owner_id === session.user.id,
+        owner: {
+          id: row.owner_id,
+          username: row.owner_username,
+          first_name: row.owner_first_name,
+          last_name: row.owner_last_name,
+        }
       }))
 
     return NextResponse.json({ albums })

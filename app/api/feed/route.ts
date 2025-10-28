@@ -21,7 +21,7 @@ export async function GET(_req: NextRequest) {
         FROM photos p
         JOIN users u ON u.id = p.uploaded_by
         ORDER BY p.created_at DESC
-        LIMIT 12
+        LIMIT 6
       `)
       .all()
       .map((row: any) => ({
@@ -42,7 +42,8 @@ export async function GET(_req: NextRequest) {
         },
       }))
 
-    // Commentaires récents
+    // Commentaires récents - Un seul commentaire par photo (le plus récent)
+    // Limité à 6 commentaires maximum
     const recentComments = db
       .prepare(`
         SELECT c.id, c.content, c.created_at,
@@ -51,8 +52,13 @@ export async function GET(_req: NextRequest) {
         FROM comments c
         JOIN users u ON u.id = c.user_id
         JOIN photos p ON p.id = c.photo_id
+        WHERE c.id IN (
+          SELECT MAX(id) 
+          FROM comments 
+          GROUP BY photo_id
+        )
         ORDER BY c.created_at DESC
-        LIMIT 10
+        LIMIT 6
       `)
       .all()
       .map((row: any) => ({
@@ -84,7 +90,7 @@ export async function GET(_req: NextRequest) {
         JOIN users u ON u.id = r.user_id
         JOIN photos p ON p.id = r.photo_id
         ORDER BY r.created_at DESC
-        LIMIT 10
+        LIMIT 6
       `)
       .all()
       .map((row: any) => ({

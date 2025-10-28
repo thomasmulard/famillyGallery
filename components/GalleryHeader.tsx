@@ -23,6 +23,8 @@ export default function GalleryHeader({
 }: GalleryHeaderProps) {
   const [showFilters, setShowFilters] = useState(false)
   const [searchInput, setSearchInput] = useState(filters.search)
+  const [people, setPeople] = useState<Array<{ id: number; displayName: string; avatar_url: string | null }>>([])
+  const [uploaders, setUploaders] = useState<Array<{ id: number; displayName: string; avatar_url: string | null }>>([])
   
   // Debounce la recherche pour optimiser les performances
   const debouncedSearch = useDebounce(searchInput, 300)
@@ -49,14 +51,45 @@ export default function GalleryHeader({
     }
   }
 
-  const handleYearChange = (year: string) => {
-    const newYears = filters.years.includes(year)
-      ? filters.years.filter(y => y !== year)
-      : [...filters.years, year]
-    
-    if (newYears.length > 0) {
-      onFiltersChange({ ...filters, years: newYears })
+  // Chargement des listes pour filtres avancés
+  useEffect(() => {
+    let mounted = true
+    const load = async () => {
+      try {
+        const [peopleRes, uploadersRes] = await Promise.all([
+          fetch('/api/auth/users', { cache: 'no-store' }),
+          fetch('/api/photos/uploaders', { cache: 'no-store' }),
+        ])
+        if (peopleRes.ok) {
+          const data = await peopleRes.json()
+          if (mounted) setPeople((data.users || []).map((u: any) => ({ id: u.id, displayName: u.displayName || u.username, avatar_url: u.avatar_url || null })))
+        }
+        if (uploadersRes.ok) {
+          const data = await uploadersRes.json()
+          if (mounted) setUploaders((data.users || []).map((u: any) => ({ id: u.id, displayName: u.displayName || u.username, avatar_url: u.avatar_url || null })))
+        }
+      } catch (e) {
+        // silencieux
+      }
     }
+    load()
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  const togglePerson = (id: number) => {
+    const current = filters.peopleIds ?? []
+    const exists = current.includes(id)
+    const next = exists ? current.filter(x => x !== id) : [...current, id]
+    onFiltersChange({ ...filters, peopleIds: next })
+  }
+
+  const toggleUploader = (id: number) => {
+    const current = filters.uploaderIds ?? []
+    const exists = current.includes(id)
+    const next = exists ? current.filter(x => x !== id) : [...current, id]
+    onFiltersChange({ ...filters, uploaderIds: next })
   }
 
   return (
@@ -161,7 +194,7 @@ export default function GalleryHeader({
       {/* Filter Panel */}
       {showFilters && (
         <div className="bg-card border border-border rounded-xl p-6 mb-6 animate-slide-down">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             <div>
               <h4 className="text-sm font-semibold mb-3">Catégories</h4>
               <div className="flex flex-wrap gap-3">
@@ -183,21 +216,69 @@ export default function GalleryHeader({
                 ))}
               </div>
             </div>
+
+            {/* Personnes taguées */}
             <div>
-              <h4 className="text-sm font-semibold mb-3">Année</h4>
-              <div className="flex flex-wrap gap-3">
-                {['2024', '2023'].map((year) => (
-                  <label key={year} className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={filters.years.includes(year)}
-                      onChange={() => handleYearChange(year)}
-                      className="w-4 h-4 accent-primary cursor-pointer"
-                    />
-                    <span className="text-sm">{year}</span>
-                  </label>
-                ))}
-              </div>
+              <h4 className="text-sm font-semibold mb-3">Personnes</h4>
+              {people.length === 0 ? (
+                <div className="text-sm text-muted-foreground">Aucun membre disponible</div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {people.map(p => {
+                    const selected = (filters.peopleIds ?? []).includes(p.id)
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => togglePerson(p.id)}
+                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm transition-colors ${selected ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border hover:bg-muted'}`}
+                        title={p.displayName}
+                      >
+                        {p.avatar_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={p.avatar_url} alt={p.displayName} className="w-5 h-5 rounded-full object-cover" />
+                        ) : (
+                          <span className="w-5 h-5 rounded-full bg-primary/15 text-primary flex items-center justify-center text-[10px] font-semibold">
+                            {p.displayName.split(' ').map(x => x[0]).join('').slice(0,2).toUpperCase()}
+                          </span>
+                        )}
+                        <span className="truncate max-w-[140px]">{p.displayName}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Uploader */}
+            <div>
+              <h4 className="text-sm font-semibold mb-3">Ajoutées par</h4>
+              {uploaders.length === 0 ? (
+                <div className="text-sm text-muted-foreground">Aucun uploader</div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {uploaders.map(u => {
+                    const selected = (filters.uploaderIds ?? []).includes(u.id)
+                    return (
+                      <button
+                        key={u.id}
+                        onClick={() => toggleUploader(u.id)}
+                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm transition-colors ${selected ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border hover:bg-muted'}`}
+                        title={u.displayName}
+                      >
+                        {u.avatar_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={u.avatar_url} alt={u.displayName} className="w-5 h-5 rounded-full object-cover" />
+                        ) : (
+                          <span className="w-5 h-5 rounded-full bg-primary/15 text-primary flex items-center justify-center text-[10px] font-semibold">
+                            {u.displayName.split(' ').map(x => x[0]).join('').slice(0,2).toUpperCase()}
+                          </span>
+                        )}
+                        <span className="truncate max-w-[140px]">{u.displayName}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           </div>
         </div>

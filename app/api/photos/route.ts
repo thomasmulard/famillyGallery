@@ -30,7 +30,6 @@ export async function GET(request: NextRequest) {
         description: row.description || '',
         date: row.taken_at || row.created_at,
         category: row.category,
-        year: new Date(row.taken_at || row.created_at).getFullYear().toString(),
         location: row.location,
         user: {
           id: row.user_id,
@@ -41,7 +40,20 @@ export async function GET(request: NextRequest) {
         },
       }))
 
-    return NextResponse.json({ photos })
+    // Récupérer les tags pour chaque photo (liste des utilisateurs tagués)
+    const tagStmt = db.prepare(`
+      SELECT u.id, u.username, u.first_name, u.last_name, u.avatar_url
+      FROM photo_tags pt
+      JOIN users u ON u.id = pt.user_id
+      WHERE pt.photo_id = ?
+      ORDER BY u.first_name IS NULL, u.first_name ASC, u.last_name ASC, u.username ASC
+    `)
+
+    const photosWithTags = photos.map((p: any) => ({
+      ...p,
+      tags: tagStmt.all(p.id)
+    }))
+    return NextResponse.json({ photos: photosWithTags })
   } catch (e) {
     console.error('GET photos error', e)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })

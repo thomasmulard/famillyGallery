@@ -8,7 +8,6 @@ export const photos: Photo[] = [
     description: 'Famille souriante sur une plage de sable fin avec des palmiers en arrière-plan au coucher du soleil',
     date: 'Été 2024',
     category: 'vacances',
-    year: '2024',
     location: 'Côte d\'Azur'
   },
   {
@@ -18,7 +17,6 @@ export const photos: Photo[] = [
     description: 'Jeune garçon blond soufflant les bougies d\'un gâteau d\'anniversaire coloré entouré de sa famille',
     date: 'Printemps 2024',
     category: 'fetes',
-    year: '2024',
     location: 'Maison'
   },
   {
@@ -28,7 +26,6 @@ export const photos: Photo[] = [
     description: 'Famille de cinq personnes en tenue de randonnée posant devant un panorama montagneux avec des sommets enneigés',
     date: 'Automne 2024',
     category: 'vacances',
-    year: '2024',
     location: 'Alpes'
   },
   {
@@ -38,7 +35,6 @@ export const photos: Photo[] = [
     description: 'Sapin de Noël décoré avec des guirlandes dorées et des cadeaux colorés disposés au pied dans un salon chaleureux',
     date: 'Décembre 2023',
     category: 'fetes',
-    year: '2023',
     location: 'Maison'
   },
   {
@@ -48,7 +44,6 @@ export const photos: Photo[] = [
     description: 'Famille assise sur une couverture à carreaux dans un parc verdoyant avec un panier de pique-nique et des enfants qui jouent',
     date: 'Été 2024',
     category: 'quotidien',
-    year: '2024',
     location: 'Parc de la Villette'
   },
   {
@@ -58,7 +53,6 @@ export const photos: Photo[] = [
     description: 'Petite fille aux cheveux bouclés faisant ses premiers pas dans un salon lumineux avec ses parents qui l\'encouragent',
     date: 'Printemps 2024',
     category: 'quotidien',
-    year: '2024'
   },
   {
     id: 10007,
@@ -67,7 +61,6 @@ export const photos: Photo[] = [
     description: 'Barbecue familial dans un jardin avec une grande table dressée et la famille réunie autour du grill fumant',
     date: 'Été 2024',
     category: 'quotidien',
-    year: '2024',
     location: 'Jardin'
   },
   {
@@ -77,7 +70,6 @@ export const photos: Photo[] = [
     description: 'Enfants émerveillés devant l\'enclos des girafes au zoo, pointant du doigt les animaux avec excitation',
     date: 'Printemps 2024',
     category: 'vacances',
-    year: '2024',
     location: 'Zoo de Vincennes'
   },
   {
@@ -87,7 +79,6 @@ export const photos: Photo[] = [
     description: 'Collection de moments familiaux mémorables capturés ensemble',
     date: 'Toute l\'année 2024',
     category: 'quotidien',
-    year: '2024'
   },
   {
     id: 10010,
@@ -96,7 +87,6 @@ export const photos: Photo[] = [
     description: 'Moments inoubliables passés en famille pendant les vacances d\'été',
     date: 'Été 2024',
     category: 'vacances',
-    year: '2024',
     location: 'Bretagne'
   },
   {
@@ -106,7 +96,6 @@ export const photos: Photo[] = [
     description: 'Profiter d\'un bel après-midi ensoleillé en famille',
     date: 'Été 2024',
     category: 'quotidien',
-    year: '2024'
   },
   {
     id: 10012,
@@ -115,7 +104,6 @@ export const photos: Photo[] = [
     description: 'Exploration et découvertes en famille lors de nos sorties',
     date: 'Automne 2024',
     category: 'vacances',
-    year: '2024',
     location: 'Provence'
   },
   {
@@ -125,7 +113,6 @@ export const photos: Photo[] = [
     description: 'Moments de bonheur et de complicité partagés ensemble',
     date: 'Printemps 2024',
     category: 'quotidien',
-    year: '2024'
   },
   {
     id: 10014,
@@ -134,7 +121,6 @@ export const photos: Photo[] = [
     description: 'Une journée mémorable passée en famille',
     date: 'Été 2024',
     category: 'fetes',
-    year: '2024'
   },
   {
     id: 10015,
@@ -143,7 +129,6 @@ export const photos: Photo[] = [
     description: 'Profiter de chaque instant passé ensemble en famille',
     date: 'Automne 2024',
     category: 'quotidien',
-    year: '2024'
   },
   {
     id: 10016,
@@ -152,7 +137,6 @@ export const photos: Photo[] = [
     description: 'Moments de célébration et de fête en famille',
     date: 'Hiver 2023',
     category: 'fetes',
-    year: '2023'
   },
   {
     id: 10017,
@@ -161,7 +145,6 @@ export const photos: Photo[] = [
     description: 'Découverte de la nature lors de nos balades familiales',
     date: 'Printemps 2024',
     category: 'vacances',
-    year: '2024',
     location: 'Fontainebleau'
   },
   {
@@ -171,7 +154,6 @@ export const photos: Photo[] = [
     description: 'Capturer les petits moments qui comptent vraiment',
     date: 'Été 2024',
     category: 'quotidien',
-    year: '2024'
   },
   {
     id: 10019,
@@ -180,7 +162,6 @@ export const photos: Photo[] = [
     description: 'La famille réunie pour des moments inoubliables',
     date: 'Automne 2024',
     category: 'quotidien',
-    year: '2024'
   },
   {
     id: 10020,
@@ -189,6 +170,5 @@ export const photos: Photo[] = [
     description: 'Partager le bonheur et la joie de vivre en famille',
     date: 'Été 2024',
     category: 'quotidien',
-    year: '2024'
   }
 ]

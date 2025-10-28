@@ -27,7 +27,8 @@ export async function GET(request: NextRequest) {
         last_name: session.user.last_name,
         avatar_url: session.user.avatar_url,
         is_admin: session.user.is_admin
-      }
+      },
+      expires_at: session.expires_at
     })
   } catch (error) {
     console.error('Session error:', error)

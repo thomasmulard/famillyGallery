@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Users, Image, FolderOpen, MessageCircle, Heart, Shield, Trash2, AlertTriangle, UserPlus, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useToast } from '@/components/ui/toast'
 
 type Stats = {
   totalUsers: number
@@ -27,10 +28,13 @@ type User = {
 }
 
 export default function Admin() {
+  const { success, error } = useToast()
   const [stats, setStats] = useState<Stats | null>(null)
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
-  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null)
+  const [deleteModalUser, setDeleteModalUser] = useState<User | null>(null)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [deleting, setDeleting] = useState(false)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [createForm, setCreateForm] = useState({
     username: '',
@@ -53,10 +57,11 @@ export default function Admin() {
         setStats(data.stats)
         setUsers(data.users)
       } else if (res.status === 403) {
-        alert('Vous n\'avez pas les droits d\'administrateur')
+        error('Vous n\'avez pas les droits d\'administrateur')
       }
     } catch (e) {
       console.error('Erreur chargement données admin', e)
+      error('Erreur de chargement des données')
     } finally {
       setLoading(false)
     }
@@ -70,28 +75,38 @@ export default function Admin() {
         body: JSON.stringify({ userId, is_admin: currentStatus ? 0 : 1 }),
       })
       if (res.ok) {
+        success('Rôle mis à jour')
         loadData()
       } else {
         const data = await res.json()
-        alert(data.error || 'Erreur lors de la modification')
+        error(data.error || 'Erreur lors de la modification')
       }
     } catch (e) {
       console.error('Erreur toggle admin', e)
+      error('Erreur lors de la modification')
     }
   }
 
   const deleteUser = async (userId: number) => {
+    if (!deleteModalUser) return
+    
+    setDeleting(true)
     try {
       const res = await fetch(`/api/admin?userId=${userId}`, { method: 'DELETE' })
       if (res.ok) {
+        success('Utilisateur supprimé')
         loadData()
-        setDeleteConfirm(null)
+        setDeleteModalUser(null)
+        setDeleteConfirmText('')
       } else {
         const data = await res.json()
-        alert(data.error || 'Erreur lors de la suppression')
+        error(data.error || 'Erreur lors de la suppression')
       }
     } catch (e) {
       console.error('Erreur suppression utilisateur', e)
+      error('Erreur lors de la suppression')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -114,12 +129,13 @@ export default function Admin() {
           is_admin: false,
         })
         loadData()
+        success('Utilisateur créé')
       } else {
-        alert(data.error || 'Erreur lors de la création')
+        error(data.error || 'Erreur lors de la création')
       }
     } catch (e) {
       console.error('Erreur création utilisateur', e)
-      alert('Erreur lors de la création')
+      error('Erreur lors de la création')
     } finally {
       setCreating(false)
     }
@@ -243,30 +259,13 @@ export default function Admin() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-2">
-                        {deleteConfirm === user.id ? (
-                          <>
-                            <button
-                              onClick={() => deleteUser(user.id)}
-                              className="px-3 py-1 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                            >
-                              Confirmer
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirm(null)}
-                              className="px-3 py-1 text-xs bg-muted text-foreground rounded-lg hover:bg-muted/70 transition-colors"
-                            >
-                              Annuler
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            onClick={() => setDeleteConfirm(user.id)}
-                            className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                            title="Supprimer l'utilisateur"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        )}
+                        <button
+                          onClick={() => setDeleteModalUser(user)}
+                          className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                          title="Supprimer l'utilisateur"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -387,6 +386,120 @@ export default function Admin() {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete User Confirmation Modal */}
+      <AnimatePresence>
+        {deleteModalUser && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                setDeleteModalUser(null)
+                setDeleteConfirmText('')
+              }}
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative z-10 bg-card rounded-xl border border-red-500/50 p-6 w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start gap-3 mb-5">
+                <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
+                  <AlertTriangle size={24} className="text-red-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold text-red-600 mb-1">
+                    Supprimer l'utilisateur
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Cette action est irréversible et supprimera toutes les données associées.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setDeleteModalUser(null)
+                    setDeleteConfirmText('')
+                  }}
+                  className="p-2 hover:bg-muted rounded-lg transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="mb-5">
+                <div className="flex items-center gap-3 p-3 bg-muted rounded-lg mb-4">
+                  {deleteModalUser.avatar_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={deleteModalUser.avatar_url}
+                      alt={deleteModalUser.username}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-primary/15 text-primary flex items-center justify-center text-sm font-semibold">
+                      {getInitials(deleteModalUser)}
+                    </div>
+                  )}
+                  <div>
+                    <div className="font-semibold">{displayName(deleteModalUser)}</div>
+                    <div className="text-sm text-muted-foreground">@{deleteModalUser.username}</div>
+                  </div>
+                </div>
+
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 space-y-2 text-sm mb-4">
+                  <p className="font-semibold text-red-900 dark:text-red-100">Les données suivantes seront supprimées :</p>
+                  <ul className="list-disc list-inside space-y-1 text-red-800 dark:text-red-200 ml-2">
+                    <li>{deleteModalUser.photos_count} photo{deleteModalUser.photos_count > 1 ? 's' : ''}</li>
+                    <li>{deleteModalUser.albums_count} album{deleteModalUser.albums_count > 1 ? 's' : ''}</li>
+                    <li>{deleteModalUser.comments_count} commentaire{deleteModalUser.comments_count > 1 ? 's' : ''}</li>
+                    <li>Toutes les réactions</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Pour confirmer, tapez : <span className="font-mono font-bold text-red-600">SUPPRIMER DEFINITIVEMENT</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={deleteConfirmText}
+                    onChange={(e) => setDeleteConfirmText(e.target.value)}
+                    placeholder="Tapez la phrase de confirmation"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    autoFocus
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDeleteModalUser(null)
+                    setDeleteConfirmText('')
+                  }}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-2 border border-border rounded-lg hover:bg-muted transition-colors disabled:opacity-50"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={() => deleteUser(deleteModalUser.id)}
+                  disabled={deleteConfirmText !== 'SUPPRIMER DEFINITIVEMENT' || deleting}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {deleting ? 'Suppression...' : 'Supprimer definitivement'}
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

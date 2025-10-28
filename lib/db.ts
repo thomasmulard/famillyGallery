@@ -73,6 +73,20 @@ export function initDatabase() {
     )
   `)
 
+  // Table de tags des personnes sur une photo
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS photo_tags (
+      photo_id INTEGER NOT NULL,
+      user_id INTEGER NOT NULL,
+      PRIMARY KEY (photo_id, user_id),
+      FOREIGN KEY (photo_id) REFERENCES photos(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `)
+
+  // Index pour accélérer les recherches
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_photo_tags_user ON photo_tags(user_id)`)
+
   // Table des commentaires
   db.exec(`
     CREATE TABLE IF NOT EXISTS comments (

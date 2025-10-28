@@ -3,10 +3,20 @@
 import { useEffect, useState, useRef } from 'react'
 import { Upload as UploadIcon, Image as ImageIcon, X, Check, AlertCircle, FolderOpen } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useToast } from '@/components/ui/toast'
 
 type Album = {
   id: number
   title: string
+  is_shared?: boolean
+}
+
+type User = {
+  id: number
+  username: string
+  first_name: string | null
+  last_name: string | null
+  avatar_url: string | null
 }
 
 type UploadFile = {
@@ -30,9 +40,11 @@ const CATEGORIES = [
 ]
 
 export default function Upload({ onUploadSuccess }: { onUploadSuccess?: () => void }) {
+  const { success, error } = useToast()
   const [files, setFiles] = useState<UploadFile[]>([])
   const [isDragging, setIsDragging] = useState(false)
   const [albums, setAlbums] = useState<Album[]>([])
+  const [people, setPeople] = useState<User[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -46,7 +58,24 @@ export default function Upload({ onUploadSuccess }: { onUploadSuccess?: () => vo
         console.error('Load albums error', e)
       }
     }
+    const loadUsers = async () => {
+      try {
+        const res = await fetch('/api/auth/users', { cache: 'no-store' })
+        const data = await res.json()
+        const users = (data.users || []).map((u: any) => ({
+          id: u.id,
+          username: u.username,
+          first_name: u.first_name,
+          last_name: u.last_name,
+          avatar_url: u.avatar_url,
+        }))
+        setPeople(users)
+      } catch (e) {
+        console.error('Load people error', e)
+      }
+    }
     loadAlbums()
+    loadUsers()
   }, [])
 
   const handleFileSelect = (selectedFiles: FileList | null) => {
@@ -108,6 +137,13 @@ export default function Upload({ onUploadSuccess }: { onUploadSuccess?: () => vo
       if (fileToUpload.albumId) {
         formData.append('albumId', fileToUpload.albumId)
       }
+      // Tags: stockés dans description via UI? On ajoute un champ caché JSON
+      // Ici, on ne stocke pas encore côté UploadFile, on l'ajoute ci-dessous depuis l'UI champs multiples
+      // Ce champ sera renseigné via updateFile plus bas
+      const tagsRaw = (fileToUpload as any).tagUserIds as string | undefined
+      if (tagsRaw) {
+        formData.append('tagUserIds', tagsRaw)
+      }
 
       const xhr = new XMLHttpRequest()
 
@@ -122,11 +158,17 @@ export default function Upload({ onUploadSuccess }: { onUploadSuccess?: () => vo
         if (xhr.status === 200) {
           updateFile(fileToUpload.id, { status: 'success', progress: 100 })
           if (onUploadSuccess) onUploadSuccess();
+          success('Photo téléchargée')
         } else {
           updateFile(fileToUpload.id, {
             status: 'error',
             error: 'Erreur lors de l\'upload',
           })
+          try {
+            const res = JSON.parse(xhr.responseText)
+            if (res?.error) error(res.error)
+          } catch {}
+          error('Échec du téléchargement')
         }
       })
 
@@ -135,6 +177,7 @@ export default function Upload({ onUploadSuccess }: { onUploadSuccess?: () => vo
           status: 'error',
           error: 'Erreur réseau',
         })
+        error('Erreur réseau pendant l\'upload')
       })
 
       xhr.open('POST', '/api/upload')
@@ -144,6 +187,7 @@ export default function Upload({ onUploadSuccess }: { onUploadSuccess?: () => vo
         status: 'error',
         error: 'Erreur lors de l\'upload',
       })
+      error('Erreur lors de l\'upload')
     }
   }
 
@@ -152,6 +196,7 @@ export default function Upload({ onUploadSuccess }: { onUploadSuccess?: () => vo
     for (const file of pendingFiles) {
       await uploadFile(file)
     }
+    if (pendingFiles.length > 0) success('Téléchargement terminé')
   }
 
   const clearCompleted = () => {
@@ -325,6 +370,15 @@ export default function Upload({ onUploadSuccess }: { onUploadSuccess?: () => vo
                         </option>
                       ))}
                     </select>
+                    {/* Banner collaboratif si l'album sélectionné est partagé */}
+                    {fileItem.albumId && (() => {
+                      const a = albums.find(a => String(a.id) === String(fileItem.albumId))
+                      return a && a.is_shared ? (
+                        <div className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 text-[10px] rounded-full bg-blue-500/10 text-blue-600 border border-blue-500/30">
+                          Album collaboratif
+                        </div>
+                      ) : null
+                    })()}
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-xs font-medium mb-1">Description</label>
@@ -336,6 +390,36 @@ export default function Upload({ onUploadSuccess }: { onUploadSuccess?: () => vo
                       placeholder="Optionnel"
                       className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
                     />
+                  </div>
+                  {/* Taguer des personnes */}
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-medium mb-1">Personnes sur la photo</label>
+                    <div className="flex flex-wrap gap-2">
+                      {people.map((p) => {
+                        const selectedIds = JSON.parse(((fileItem as any).tagUserIds || '[]')) as number[]
+                        const selected = selectedIds.includes(p.id)
+                        const name = (p.first_name || p.last_name) ? `${p.first_name ?? ''} ${p.last_name ?? ''}`.trim() : p.username
+                        return (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => {
+                              let ids = selectedIds
+                              if (selected) ids = ids.filter(id => id !== p.id)
+                              else ids = [...ids, p.id]
+                              updateFile(fileItem.id, { ...(fileItem as any), tagUserIds: JSON.stringify(ids) } as any)
+                            }}
+                            disabled={fileItem.status !== 'pending'}
+                            className={`px-2 py-1 rounded-full text-xs border transition-colors ${selected ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-border hover:bg-muted'}`}
+                          >
+                            {name}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    {((fileItem as any).tagUserIds && JSON.parse((fileItem as any).tagUserIds).length > 0) && (
+                      <div className="mt-1 text-[10px] text-muted-foreground">{JSON.parse((fileItem as any).tagUserIds).length} personne(s) taguée(s)</div>
+                    )}
                   </div>
                 </div>
 

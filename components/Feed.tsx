@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { MessageCircle, Heart, ThumbsUp, Laugh, Meh, Zap } from 'lucide-react'
+import { useToast } from '@/components/ui/toast'
 
 type FeedPhoto = {
   id: number
@@ -42,10 +43,12 @@ export default function Feed({ onPhotoClick }: FeedProps) {
   const [recentComments, setRecentComments] = useState<FeedComment[]>([])
   const [recentReactions, setRecentReactions] = useState<FeedReaction[]>([])
   const [refreshKey, setRefreshKey] = useState(0)
+  const { success, error: errorToast, info } = useToast()
+  const [hasUpdates, setHasUpdates] = useState(false)
 
   useEffect(() => {
     let mounted = true
-    ;(async () => {
+    const load = async (showToast: boolean) => {
       try {
         setLoading(true)
         const res = await fetch('/api/feed', { cache: 'no-store' })
@@ -56,18 +59,36 @@ export default function Feed({ onPhotoClick }: FeedProps) {
         setRecentComments(data.recentComments || [])
         setRecentReactions(data.recentReactions || [])
         setError(null)
+        if (showToast) success('Flux actualisé')
+        setHasUpdates(false)
       } catch (e) {
-        if (mounted) setError("Impossible de charger le fil d'actualité")
+        if (mounted) {
+          setError("Impossible de charger le fil d'actualité")
+          errorToast("Impossible de charger le fil d'actualité")
+        }
       } finally {
         if (mounted) setLoading(false)
       }
-    })()
+    }
+
+    // Chargement initial sans toast
+    load(false)
+
+    const onExternalRefresh = () => {
+      // Signaler qu'il y a des nouveautés sans recharger automatiquement
+      setHasUpdates(true)
+      info('Nouvelles activités disponibles')
+    }
+    window.addEventListener('feed:refresh', onExternalRefresh)
     return () => {
       mounted = false
+      window.removeEventListener('feed:refresh', onExternalRefresh)
     }
-  }, [refreshKey])
+  }, [refreshKey, success, errorToast])
 
-  const refresh = () => setRefreshKey(k => k + 1)
+  const refresh = () => {
+    setRefreshKey(k => k + 1)
+  }
 
   return (
     <div className="space-y-10">
@@ -78,9 +99,12 @@ export default function Feed({ onPhotoClick }: FeedProps) {
         </div>
         <button
           onClick={refresh}
-          className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+          className="relative px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
         >
           Actualiser
+          {hasUpdates && (
+            <span className="absolute -top-1 -right-1 inline-flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full text-[10px] bg-red-500 text-white">New</span>
+          )}
         </button>
       </header>
 

@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
     const category = (formData.get('category') as string) || 'quotidien'
     const location = formData.get('location') as string
     const albumId = formData.get('albumId') as string
+  const tagUserIdsRaw = formData.get('tagUserIds') as string | null
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
@@ -118,6 +119,21 @@ export async function POST(request: NextRequest) {
         WHERE id = ?
       `)
       .get(result.lastInsertRowid) as any
+
+    // Insérer les tags (photo_tags)
+    try {
+      if (tagUserIdsRaw) {
+        const ids = JSON.parse(tagUserIdsRaw) as number[]
+        if (Array.isArray(ids) && ids.length > 0) {
+          const insertTag = db.prepare(`INSERT OR IGNORE INTO photo_tags (photo_id, user_id) VALUES (?, ?)`)
+          ids.forEach(uid => {
+            if (typeof uid === 'number') insertTag.run(photo.id, uid)
+          })
+        }
+      }
+    } catch (e) {
+      console.error('Upload tags parse/insert error', e)
+    }
 
     return NextResponse.json({
       success: true,

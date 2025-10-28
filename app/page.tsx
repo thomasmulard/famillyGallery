@@ -6,25 +6,25 @@ import MobileNav from '@/components/MobileNav'
 import Breadcrumb from '@/components/Breadcrumb'
 import GalleryHeader from '@/components/GalleryHeader'
 import PhotoGrid from '@/components/PhotoGrid'
-import PhotoModal from '@/components/PhotoModal'
+import PhotoModalSimple from '@/components/PhotoModalSimple'
 import Feed from '@/components/Feed'
-import MyAlbums from '@/components/MyAlbums'
+import MyAlbums from '@/components/Albums'
 import Upload from '@/components/Upload'
 import Admin from '@/components/Admin'
-import { photos as staticPhotos } from '@/data/photos'
-import { Photo, ViewMode } from '@/types'
+import { Photo, ViewMode, Filters } from '@/types'
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState('gallery')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null)
   const [viewMode, setViewMode] = useState<ViewMode>('comfortable')
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<Filters>({
     categories: ['all'] as string[],
-    years: ['2024'] as string[],
     search: '',
+    peopleIds: [] as number[],
+    uploaderIds: [] as number[],
   })
-  const [dbPhotos, setDbPhotos] = useState<Photo[]>([])
+  const [allPhotos, setAllPhotos] = useState<Photo[]>([])
 
   // Fetch photos from database
   const fetchPhotos = async () => {
@@ -32,7 +32,7 @@ export default function Home() {
       const res = await fetch('/api/photos')
       if (res.ok) {
         const data = await res.json()
-        setDbPhotos(data.photos || [])
+        setAllPhotos(data.photos || [])
       }
     } catch (error) {
       console.error('Error fetching photos:', error)
@@ -42,24 +42,27 @@ export default function Home() {
     fetchPhotos()
   }, [])
 
-  // Merge static photos with database photos
-  const allPhotos = useMemo(() => {
-    return [...staticPhotos, ...dbPhotos]
-  }, [dbPhotos])
-
   // Filter photos avec useMemo pour éviter les recalculs
   const filteredPhotos = useMemo(() => {
     return allPhotos.filter(photo => {
       const categoryMatch = filters.categories.includes('all') || 
                            filters.categories.includes(photo.category)
-      const yearMatch = filters.years.includes(photo.year)
       const searchMatch = filters.search === '' ||
                          photo.title.toLowerCase().includes(filters.search.toLowerCase()) ||
                          photo.description.toLowerCase().includes(filters.search.toLowerCase())
+      // Filtre uploader: si des uploaders sont sélectionnés, l'uploader de la photo doit être dans la liste
+      const uploaderMatch = (filters.uploaderIds?.length ?? 0) === 0 ||
+        (photo.user && filters.uploaderIds?.includes(photo.user.id))
+      // Filtre personnes taguées: si des personnes sont sélectionnées, la photo doit contenir TOUTES ces personnes
+      const peopleIds = filters.peopleIds ?? []
+      const tags = photo.tags ?? []
+      const peopleMatch = peopleIds.length === 0 || (
+        peopleIds.every(id => tags.some(t => t.id === id))
+      )
       
-      return categoryMatch && yearMatch && searchMatch
+      return categoryMatch && searchMatch && uploaderMatch && peopleMatch
     })
-  }, [filters])
+  }, [allPhotos, filters])
 
   const handlePhotoClick = (photo: Photo) => {
     setSelectedPhoto(photo)
@@ -139,7 +142,7 @@ export default function Home() {
       </main>
 
       {selectedPhoto && (
-        <PhotoModal
+        <PhotoModalSimple
           photo={selectedPhoto}
           photos={filteredPhotos}
           onClose={handleCloseModal}
