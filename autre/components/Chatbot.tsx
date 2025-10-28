@@ -12,7 +12,7 @@ interface ChatbotProps {
 
 const ThinkingModeToggle: React.FC<{ isThinkingMode: boolean; onChange: (checked: boolean) => void }> = ({ isThinkingMode, onChange }) => (
     <div className="flex items-center space-x-2">
-      <BrainIcon className={`w-5 h-5 transition-colors ${isThinkingMode ? 'text-amber-500' : 'text-stone-400'}`} />
+      <BrainIcon className={`w-5 h-5 transition-colors ${isThinkingMode ? 'text-orange-500' : 'text-stone-400'}`} />
       <span className={`text-sm font-medium ${isThinkingMode ? 'text-stone-800 dark:text-stone-200' : 'text-stone-500 dark:text-stone-400'}`}>Mode Pensée</span>
       <label className="relative inline-flex items-center cursor-pointer">
         <input
@@ -21,7 +21,7 @@ const ThinkingModeToggle: React.FC<{ isThinkingMode: boolean; onChange: (checked
           onChange={(e) => onChange(e.target.checked)}
           className="sr-only peer"
         />
-        <div className="w-11 h-6 bg-stone-200 dark:bg-slate-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-amber-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+        <div className="w-11 h-6 bg-stone-200 dark:bg-slate-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-orange-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
       </label>
     </div>
 );
@@ -65,7 +65,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="w-[calc(100vw-2rem)] sm:w-96 h-[70vh] max-h-[600px] bg-white dark:bg-slate-800 text-stone-800 dark:text-stone-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden border-2 border-amber-100 dark:border-slate-700 animate-fade-in-up">
+    <div className="w-[calc(100vw-2rem)] sm:w-96 h-[70vh] max-h-[600px] bg-white dark:bg-slate-800 text-stone-800 dark:text-stone-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden border-2 border-orange-100 dark:border-slate-700 animate-fade-in-up">
       <header className="flex items-center justify-between p-3 border-b border-stone-200 dark:border-slate-700 bg-stone-50 dark:bg-slate-800/50">
         <div className="flex-grow">
             <ThinkingModeToggle isThinkingMode={isThinkingMode} onChange={setIsThinkingMode} />
@@ -96,13 +96,13 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Posez votre question..."
-            className="flex-1 w-full px-4 py-2 bg-stone-100 dark:bg-slate-700 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white dark:focus:bg-slate-600 transition"
+            className="flex-1 w-full px-4 py-2 bg-stone-100 dark:bg-slate-700 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-orange-400 focus:bg-white dark:focus:bg-slate-600 transition"
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            className="p-3 bg-amber-500 text-white rounded-full transition-colors hover:bg-amber-600 disabled:bg-stone-300 dark:disabled:bg-slate-600 disabled:cursor-not-allowed"
+            className="p-3 bg-orange-500 text-white rounded-full transition-colors hover:bg-orange-600 disabled:bg-stone-300 dark:disabled:bg-slate-600 disabled:cursor-not-allowed"
           >
             <SendIcon className="w-5 h-5" />
           </button>

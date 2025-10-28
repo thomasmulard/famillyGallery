@@ -4,42 +4,45 @@
 
 @layer base {
   :root {
-    --background: 38 90% 96%;
+    --background: 40 30% 95%;
     --foreground: 25 5% 20%;
     --card: 0 0% 100%;
-    --border: 30 15% 88%;
-    --muted: 38 50% 95%;
+    --border: 40 25% 88%;
+    --muted: 40 30% 92%;
     --muted-foreground: 25 5% 45%;
-    --primary: 38 92% 50%;
+    --primary: 35 70% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 25 5% 45%;
+    --secondary: 25 15% 45%;
     --secondary-foreground: 0 0% 100%;
-    --accent: 38 100% 60%;
+    --accent: 25 75% 55%;
     --accent-foreground: 0 0% 100%;
     --radius: 0.5rem;
   }
 
   .dark {
     --background: 222 47% 11%;
-    --foreground: 25 5% 90%;
-    --card: 222 47% 11%;
-    --border: 217 33% 17%;
-    --muted: 222 47% 11%;
-    --muted-foreground: 215 16% 47%;
-    --primary: 38 92% 50%;
+    --foreground: 40 20% 90%;
+    --card: 222 47% 13%;
+    --border: 40 20% 20%;
+    --muted: 222 47% 15%;
+    --muted-foreground: 40 15% 50%;
+    --primary: 35 65% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --accent: 38 100% 60%;
+    --secondary: 220 30% 30%;
+    --secondary-foreground: 40 20% 95%;
+    --accent: 25 70% 50%;
     --accent-foreground: 0 0% 100%;
   }
-
   * {
     @apply border-border;
   }
   
   body {
-    @apply bg-background text-foreground transition-colors duration-300;
+    @apply bg-gradient-to-br from-white to-amber-50 dark:from-slate-900 dark:to-slate-950 text-foreground transition-colors duration-300;
+  }
+  
+  html, main, section, article {
+    background-color: inherit;
   }
 }
 

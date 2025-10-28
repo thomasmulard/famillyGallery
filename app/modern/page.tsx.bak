@@ -1,0 +1,559 @@
+'use client'
+
+import React, { useState, useEffect, useRef } from 'react';
+import { PhotoGallery } from '@/components/modern/PhotoGallery';
+import { ChatIcon, CloseIcon, HeartIcon, SendIcon, SunIcon, MoonIcon, HomeIcon, PhotoIcon, ArrowUpTrayIconUser, ArrowRightStartOnRectangleIcon, UserCircleIcon } from '@/components/modern/icons';
+import { useRouter } from 'next/navigation';
+
+// Types
+interface PhotoUser {
+  id: number
+  username: string
+  first_name: string | null
+  last_name: string | null
+  avatar_url: string | null
+}
+
+interface Comment {
+  id: number
+  userId: number
+  user: PhotoUser
+  text: string
+  createdAt: string
+}
+
+interface Photo {
+  id: number
+  url: string
+  thumbnail: string | null
+  caption: string
+  ownerId: number
+  owner: PhotoUser
+  taggedUsers: PhotoUser[]
+  likes: number
+  comments: number
+  createdAt: string
+  allComments: Comment[]
+}
+
+interface User {
+  id: number
+  username: string
+  displayName: string
+  avatar_url: string | null
+  is_admin: boolean
+}
+
+interface Activity {
+  type: 'upload' | 'comment' | 'like'
+  timestamp: string
+  user: PhotoUser
+  photo: Photo
+  commentText?: string
+}
+
+// Composant PhotoModal
+const PhotoModal: React.FC<{
+  photo: Photo
+  users: User[]
+  currentUser: User
+  onClose: () => void
+  onLike: (photoId: number) => void
+  onAddComment: (photoId: number, text: string) => void
+}> = ({ photo, users, currentUser, onClose, onLike, onAddComment }) => {
+    const [commentText, setCommentText] = useState('');
+    const commentsEndRef = useRef<HTMLDivElement>(null);
+    const photoOwner = photo.owner;
+    const hasLiked = false;
+
+    useEffect(() => {
+        commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [photo.allComments]);
+
+    const handleCommentSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!commentText.trim()) return;
+        onAddComment(photo.id, commentText);
+        setCommentText('');
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/70 dark:bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fade-in" onClick={onClose}>
+            <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+                <div className="w-full md:w-2/3 bg-black flex items-center justify-center">
+                    <img src={photo.url} alt={photo.caption} className="w-full h-full object-contain" />
+                </div>
+                <div className="w-full md:w-1/3 flex flex-col text-stone-800 dark:text-stone-200">
+                    <header className="p-4 border-b border-stone-200 dark:border-slate-700 flex items-center gap-3">
+                        {photoOwner?.avatar_url ? (
+                          <img src={photoOwner.avatar_url} alt={photoOwner.username} className="w-10 h-10 rounded-full bg-stone-200 dark:bg-slate-700" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-stone-200 dark:bg-slate-700 flex items-center justify-center text-stone-500 dark:text-stone-400">
+                            <UserCircleIcon className="w-5 h-5" />
+                          </div>
+                        )}
+                        <div>
+                            <p className="font-bold">{photoOwner?.first_name || photoOwner?.username}</p>
+                            <p className="text-sm text-stone-600 dark:text-stone-400">{photo.caption}</p>
+                        </div>
+                        <button onClick={onClose} className="ml-auto text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1 rounded-full hover:bg-stone-200 dark:hover:bg-slate-600 transition-colors">
+                            <CloseIcon className="w-6 h-6" />
+                        </button>
+                    </header>
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                        {photo.allComments?.map(comment => (
+                            <div key={comment.id} className="flex items-start gap-3">
+                                {comment.user?.avatar_url ? (
+                                  <img src={comment.user.avatar_url} alt={comment.user.username} className="w-8 h-8 rounded-full mt-1 bg-stone-200 dark:bg-slate-700" />
+                                ) : (
+                                  <div className="w-8 h-8 rounded-full mt-1 bg-stone-200 dark:bg-slate-700 flex items-center justify-center text-stone-500 dark:text-stone-400">
+                                    <UserCircleIcon className="w-4 h-4" />
+                                  </div>
+                                )}
+                                <div>
+                                    <p className="text-sm"><span className="font-bold">{comment.user?.first_name || comment.user?.username}</span> {comment.text}</p>
+                                </div>
+                            </div>
+                        ))}
+                        <div ref={commentsEndRef} />
+                    </div>
+                    <footer className="p-4 border-t border-stone-200 dark:border-slate-700 space-y-3 bg-amber-50 dark:bg-slate-900/50">
+                        <div className="flex items-center gap-4">
+                            <button onClick={() => onLike(photo.id)} className="flex items-center gap-1.5 group">
+                                <HeartIcon className={`w-7 h-7 transition-all ${hasLiked ? 'text-red-500 fill-current' : 'text-stone-700 dark:text-stone-300 group-hover:text-red-500'}`} />
+                            </button>
+                             <p className="text-sm font-semibold">{photo.likes} like{photo.likes !== 1 && 's'}</p>
+                        </div>
+                        <form onSubmit={handleCommentSubmit} className="flex items-center space-x-2">
+                            {currentUser.avatar_url ? (
+                              <img src={currentUser.avatar_url} alt={currentUser.username} className="w-8 h-8 rounded-full bg-stone-200 dark:bg-slate-700"/>
+                            ) : (
+                              <div className="w-8 h-8 rounded-full bg-stone-200 dark:bg-slate-700 flex items-center justify-center text-stone-500 dark:text-stone-400">
+                                <UserCircleIcon className="w-4 h-4" />
+                              </div>
+                            )}
+                            <input
+                                type="text"
+                                value={commentText}
+                                onChange={(e) => setCommentText(e.target.value)}
+                                placeholder="Ajouter un commentaire..."
+                                className="flex-1 w-full px-3 py-1.5 text-sm bg-stone-100 dark:bg-slate-700 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-slate-600 transition"
+                            />
+                             <button type="submit" className="p-2 bg-primary text-white rounded-full transition-colors hover:bg-primary/90 disabled:bg-stone-300 dark:disabled:bg-slate-600" disabled={!commentText.trim()}>
+                                <SendIcon className="w-4 h-4" />
+                            </button>
+                        </form>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Composant HomePage
+const HomePage: React.FC<{ photos: Photo[]; users: User[] }> = ({ photos, users }) => {
+  const [activities, setActivities] = useState<Activity[]>([]);
+
+  useEffect(() => {
+    const allActivities: Activity[] = photos.map(photo => ({
+      type: 'upload' as const,
+      timestamp: photo.createdAt,
+      user: photo.owner,
+      photo,
+    }));
+
+    allActivities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    setActivities(allActivities.slice(0, 20));
+  }, [photos]);
+  
+  const ActivityCard: React.FC<{ activity: Activity }> = ({ activity }) => {
+    const msPerDay = 1000 * 60 * 60 * 24;
+    const timestampMs = activity.timestamp ? new Date(activity.timestamp).getTime() : NaN;
+    const daysDiff = Number.isFinite(timestampMs) ? Math.round((timestampMs - Date.now()) / msPerDay) : 0;
+
+    let timeAgo = 'aujourd\'hui';
+    try {
+      if (Number.isFinite(daysDiff)) {
+        timeAgo = new Intl.RelativeTimeFormat('fr', { style: 'short' }).format(daysDiff, 'day');
+      }
+    } catch (e) {
+      timeAgo = 'aujourd\'hui';
+    }
+
+    const renderText = () => {
+        switch(activity.type) {
+            case 'upload': return <>a partagé une nouvelle photo.</>;
+            case 'like': return <>a aimé une photo.</>;
+            case 'comment': return <>a commenté : <em>"{activity.commentText}"</em></>;
+        }
+    }
+
+    return (
+        <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow flex gap-4 items-start">
+            {activity.user.avatar_url ? (
+              <img src={activity.user.avatar_url} alt={activity.user.username} className="w-10 h-10 rounded-full bg-stone-200 dark:bg-slate-700"/>
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-stone-200 dark:bg-slate-700 flex items-center justify-center text-stone-500 dark:text-stone-400">
+                <UserCircleIcon className="w-5 h-5" />
+              </div>
+            )}
+            <div className="flex-1">
+                <p className="text-sm">
+                    <strong>{activity.user.first_name || activity.user.username}</strong> {renderText()}
+                </p>
+                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">{timeAgo}</p>
+            </div>
+            <img src={activity.photo.thumbnail || activity.photo.url} alt={activity.photo.caption} className="w-16 h-16 rounded-md object-cover"/>
+        </div>
+    );
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto py-8 px-4 bg-gradient-to-b from-transparent to-amber-50/30 dark:to-slate-800/20 rounded-2xl">
+        <h2 className="text-3xl font-bold mb-6 text-center text-slate-800 dark:text-amber-100">Fil d'actualité</h2>
+        <div className="space-y-4">
+            {activities.map((activity, index) => <ActivityCard key={index} activity={activity} />)}
+        </div>
+    </div>
+  );
+};
+
+// Composant Header
+const Header: React.FC<{
+    currentPage: string
+    onNavigate: (page: string) => void
+    theme: string
+    onThemeChange: (theme: string) => void
+    users: User[]
+    currentUser: User
+    onLogout: () => void
+}> = ({ currentPage, onNavigate, theme, onThemeChange, users, currentUser, onLogout }) => {
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const profileRef = useRef<HTMLDivElement>(null);
+
+    const navLinkClasses = (page: string) => {
+        const base = "flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all duration-200";
+        const active = currentPage === page 
+            ? 'bg-primary text-white shadow-md'
+            : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-slate-700';
+        return `${base} ${active}`;
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+                setIsProfileOpen(false);
+            }
+        };
+
+        if (isProfileOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+            return () => document.removeEventListener('mousedown', handleClickOutside);
+        }
+    }, [isProfileOpen]);
+
+    return (
+        <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-b border-stone-200 dark:border-slate-700 shadow-sm">
+            <div className="max-w-full px-4 py-3">
+                <div className="flex items-center justify-between h-16">
+                    <div className="flex items-center gap-4">
+                        <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-amber-100">Souvenirs</h1>
+                        <nav className="hidden md:flex items-center gap-2">
+                           <button onClick={() => onNavigate('home')} className={navLinkClasses('home')}><HomeIcon className="w-5 h-5"/>Accueil</button>
+                           <button onClick={() => onNavigate('gallery')} className={navLinkClasses('gallery')}><PhotoIcon className="w-5 h-5"/>Galerie</button>
+                           <button onClick={() => onNavigate('upload')} className={navLinkClasses('upload')}><ArrowUpTrayIconUser className="w-5 h-5"/>Partager</button>
+                        </nav>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <button onClick={() => onThemeChange(theme === 'dark' ? 'light' : 'dark')} className="p-2 rounded-full text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-slate-700 transition-colors">
+                            {theme === 'dark' ? <SunIcon className="w-6 h-6"/> : <MoonIcon className="w-6 h-6"/>}
+                        </button>
+                        <div className="relative" ref={profileRef}>
+                            <button onClick={() => setIsProfileOpen(o => !o)}>
+                                {currentUser.avatar_url ? (
+                                    <img src={currentUser.avatar_url} alt={currentUser.username} className="w-9 h-9 rounded-full ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 ring-primary bg-stone-200 dark:bg-slate-700"/>
+                                ) : (
+                                    <div className="w-9 h-9 rounded-full ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 ring-primary bg-stone-200 dark:bg-slate-700 flex items-center justify-center text-stone-500 dark:text-stone-400">
+                                        <UserCircleIcon className="w-5 h-5" />
+                                    </div>
+                                )}
+                            </button>
+                            {isProfileOpen && (
+                                <div className="absolute right-0 mt-2 w-56 origin-top-right bg-white dark:bg-slate-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none animate-fade-in-up-sm">
+                                    <div className="p-2">
+                                        <div className="px-2 py-2">
+                                            <p className="text-sm">Connecté en tant que</p>
+                                            <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{currentUser.displayName}</p>
+                                        </div>
+                                        <div className="border-t border-stone-200 dark:border-slate-700 my-1"></div>
+                                        <button onClick={onLogout} className="w-full text-left flex items-center gap-3 px-2 py-2 text-sm rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
+                                            <ArrowRightStartOnRectangleIcon className="w-5 h-5" />
+                                            Se déconnecter
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+    );
+};
+
+// Composant principal
+export default function ModernGalleryPage() {
+  const router = useRouter();
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const [currentPage, setCurrentPage] = useState<'home' | 'gallery' | 'upload'>('home');
+  const [theme, setTheme] = useState('light');
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
+  // Charger le thème depuis localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    setTheme(savedTheme);
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  // Gèrer le changement de thème
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  // Charger les données
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        
+        // Charger la session
+        const sessionRes = await fetch('/api/auth/session');
+        if (!sessionRes.ok) {
+          router.push('/login');
+          return;
+        }
+        const sessionData = await sessionRes.json();
+        const user = sessionData.user;
+        
+        setCurrentUser({
+          id: user.id,
+          username: user.username,
+          displayName: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username,
+          avatar_url: user.avatar_url,
+          is_admin: user.is_admin || false
+        });
+
+        // Charger les photos
+        const photosRes = await fetch('/api/photos');
+        const photosData = await photosRes.json();
+        
+        const formattedPhotos: Photo[] = (photosData.photos || []).map((p: any) => ({
+          id: p.id,
+          url: p.src,
+          thumbnail: p.thumbnail,
+          caption: p.title || p.description || 'Sans titre',
+          ownerId: p.user?.id || 0,
+          owner: {
+            id: p.user?.id || 0,
+            username: p.user?.username || 'Unknown',
+            first_name: p.user?.first_name,
+            last_name: p.user?.last_name,
+            avatar_url: p.user?.avatar_url
+          },
+          taggedUsers: p.tags || [],
+          likes: p.reactions?.length || 0,
+          comments: p.comments?.length || 0,
+          createdAt: p.created_at,
+          allComments: (p.comments || []).map((c: any) => ({
+            id: c.id,
+            userId: c.user?.id || 0,
+            user: c.user,
+            text: c.content,
+            createdAt: c.created_at
+          }))
+        }));
+        
+        setPhotos(formattedPhotos);
+
+        // Charger les utilisateurs
+        const usersRes = await fetch('/api/auth/users');
+        const usersData = await usersRes.json();
+        setUsers(usersData.users || []);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [router]);
+
+  const handleLike = async (photoId: number) => {
+    try {
+      const res = await fetch('/api/reactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photoId, type: 'like' }),
+      });
+      
+      if (res.ok) {
+        const photosRes = await fetch('/api/photos');
+        const photosData = await photosRes.json();
+        const formattedPhotos: Photo[] = (photosData.photos || []).map((p: any) => ({
+          id: p.id,
+          url: p.src,
+          thumbnail: p.thumbnail,
+          caption: p.title || p.description || 'Sans titre',
+          ownerId: p.user?.id || 0,
+          owner: {
+            id: p.user?.id || 0,
+            username: p.user?.username || 'Unknown',
+            first_name: p.user?.first_name,
+            last_name: p.user?.last_name,
+            avatar_url: p.user?.avatar_url
+          },
+          taggedUsers: p.tags || [],
+          likes: p.reactions?.length || 0,
+          comments: p.comments?.length || 0,
+          createdAt: p.created_at,
+          allComments: (p.comments || []).map((c: any) => ({
+            id: c.id,
+            userId: c.user?.id || 0,
+            user: c.user,
+            text: c.content,
+            createdAt: c.created_at
+          }))
+        }));
+        setPhotos(formattedPhotos);
+      }
+    } catch (error) {
+      console.error('Error liking photo:', error);
+    }
+  };
+  
+  const handleAddComment = async (photoId: number, text: string) => {
+    try {
+      const res = await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photoId, content: text }),
+      });
+      
+      if (res.ok) {
+        const photosRes = await fetch('/api/photos');
+        const photosData = await photosRes.json();
+        const formattedPhotos: Photo[] = (photosData.photos || []).map((p: any) => ({
+          id: p.id,
+          url: p.src,
+          thumbnail: p.thumbnail,
+          caption: p.title || p.description || 'Sans titre',
+          ownerId: p.user?.id || 0,
+          owner: {
+            id: p.user?.id || 0,
+            username: p.user?.username || 'Unknown',
+            first_name: p.user?.first_name,
+            last_name: p.user?.last_name,
+            avatar_url: p.user?.avatar_url
+          },
+          taggedUsers: p.tags || [],
+          likes: p.reactions?.length || 0,
+          comments: p.comments?.length || 0,
+          createdAt: p.created_at,
+          allComments: (p.comments || []).map((c: any) => ({
+            id: c.id,
+            userId: c.user?.id || 0,
+            user: c.user,
+            text: c.content,
+            createdAt: c.created_at
+          }))
+        }));
+        setPhotos(formattedPhotos);
+        if (selectedPhoto) {
+          const updated = formattedPhotos.find(p => p.id === selectedPhoto.id);
+          if (updated) setSelectedPhoto(updated);
+        }
+      }
+    } catch (error) {
+      console.error('Error adding comment:', error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+  
+  const renderCurrentPage = () => {
+    if (loading || !currentUser) {
+      return <div className="flex items-center justify-center h-96"><div className="text-lg">Chargement...</div></div>;
+    }
+
+    switch (currentPage) {
+        case 'home':
+            return <HomePage photos={photos} users={users} />;
+        case 'gallery':
+            return <PhotoGallery photos={photos} users={users} onSelectPhoto={(photo) => setSelectedPhoto(photo)} />;
+        case 'upload':
+            return <div className="max-w-2xl mx-auto py-8 px-4">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg">
+                <h2 className="text-2xl font-bold mb-4">Upload disponible dans l'interface complète</h2>
+                <p className="text-stone-600 dark:text-stone-400">Cette fonctionnalité nécessite le composant Upload complet.</p>
+              </div>
+            </div>;
+        default:
+            return <HomePage photos={photos} users={users} />;
+    }
+  }
+
+  if (loading || !currentUser) {
+    return <div className="min-h-screen bg-gradient-to-br from-white to-amber-50 dark:from-slate-900 dark:to-slate-950 flex items-center justify-center">
+      <div className="text-lg">Chargement...</div>
+    </div>;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-white to-amber-50 dark:from-slate-900 dark:to-slate-950">
+      <Header 
+        currentPage={currentPage}
+        onNavigate={setCurrentPage}
+        theme={theme}
+        onThemeChange={setTheme}
+        users={users}
+        currentUser={currentUser}
+        onLogout={handleLogout}
+      />
+      <main className="pb-16">
+        {renderCurrentPage()}
+      </main>
+      {selectedPhoto && <PhotoModal photo={selectedPhoto} users={users} currentUser={currentUser} onClose={() => setSelectedPhoto(null)} onLike={handleLike} onAddComment={handleAddComment} />}
+      <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50">       
+        <button
+          onClick={() => setIsChatOpen(!isChatOpen)}
+          className="bg-primary hover:bg-primary/90 text-white font-bold p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-primary/30"
+          aria-label="Open chat"
+        >
+          <ChatIcon className="w-8 h-8" />
+        </button>
+      </div>
+    </div>
+  );
+}

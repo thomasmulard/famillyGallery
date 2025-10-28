@@ -2,8 +2,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { PhotoGallery } from './components/PhotoGallery';
 import { Chatbot } from './components/Chatbot';
-import { ChatIcon, CloseIcon, HeartIcon, SendIcon, SunIcon, MoonIcon, HomeIcon, PhotoIcon, ArrowUpTrayIconUser, UserCircleIcon, ArrowRightStartOnRectangleIcon } from './components/icons';
+import { ChatIcon, CloseIcon, HeartIcon, SendIcon, SunIcon, MoonIcon, HomeIcon, PhotoIcon, ArrowUpTrayIconUser, UserCircleIcon, ArrowRightStartOnRectangleIcon, ShieldCheckIcon } from './components/icons';
 import type { Photo, User, Comment, Like } from './types';
+import { AdminPage } from './components/AdminPage';
 
 // --- INITIAL DATA (with new fields: createdAt, taggedUserIds, updated likes/comments) ---
 const now = Date.now();
@@ -108,9 +109,9 @@ const PhotoModal: React.FC<{
                                 value={commentText}
                                 onChange={(e) => setCommentText(e.target.value)}
                                 placeholder="Ajouter un commentaire..."
-                                className="flex-1 w-full px-3 py-1.5 text-sm bg-stone-100 dark:bg-slate-700 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white dark:focus:bg-slate-600 transition"
+                                className="flex-1 w-full px-3 py-1.5 text-sm bg-stone-100 dark:bg-slate-700 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-orange-400 focus:bg-white dark:focus:bg-slate-600 transition"
                             />
-                             <button type="submit" className="p-2 bg-amber-500 text-white rounded-full transition-colors hover:bg-amber-600 disabled:bg-stone-300 dark:disabled:bg-slate-600" disabled={!commentText.trim()}>
+                             <button type="submit" className="p-2 bg-orange-500 text-white rounded-full transition-colors hover:bg-orange-600 disabled:bg-stone-300 dark:disabled:bg-slate-600" disabled={!commentText.trim()}>
                                 <SendIcon className="w-4 h-4" />
                             </button>
                         </form>
@@ -257,7 +258,7 @@ const UploadPage: React.FC<{
                     <img src={imageSrc} alt="Preview" className="w-full h-auto max-h-96 object-contain rounded-lg bg-stone-100 dark:bg-slate-700" />
                 ) : (
                     <div 
-                        className="w-full h-64 border-2 border-dashed border-stone-300 dark:border-slate-600 rounded-lg flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 cursor-pointer hover:border-amber-400 dark:hover:border-amber-400 transition-colors"
+                        className="w-full h-64 border-2 border-dashed border-stone-300 dark:border-slate-600 rounded-lg flex flex-col items-center justify-center text-stone-500 dark:text-stone-400 cursor-pointer hover:border-orange-400 dark:hover:border-orange-400 transition-colors"
                         onClick={() => fileInputRef.current?.click()}
                     >
                         <ArrowUpTrayIconUser className="w-12 h-12 mb-2"/>
@@ -273,14 +274,14 @@ const UploadPage: React.FC<{
                         value={caption}
                         onChange={(e) => setCaption(e.target.value)}
                         placeholder="Ex: Journée à la mer..."
-                        className="w-full px-4 py-2 bg-stone-100 dark:bg-slate-700 border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white dark:focus:bg-slate-600 transition"
+                        className="w-full px-4 py-2 bg-stone-100 dark:bg-slate-700 border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:bg-white dark:focus:bg-slate-600 transition"
                     />
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-2">Qui est sur la photo ?</label>
                     <div className="flex flex-wrap gap-3">
                         {users.map(user => (
-                            <button key={user.id} onClick={() => handleTagUser(user.id)} className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-all ${taggedUserIds.includes(user.id) ? 'bg-amber-500 text-white ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-800 ring-amber-500' : 'bg-stone-100 dark:bg-slate-700 hover:bg-stone-200 dark:hover:bg-slate-600'}`}>
+                            <button key={user.id} onClick={() => handleTagUser(user.id)} className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-all ${taggedUserIds.includes(user.id) ? 'bg-orange-500 text-white ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-800 ring-orange-500' : 'bg-stone-100 dark:bg-slate-700 hover:bg-stone-200 dark:hover:bg-slate-600'}`}>
                                 <img src={user.avatar} alt={user.name} className="w-6 h-6 rounded-full"/>
                                 {user.name}
                             </button>
@@ -289,7 +290,7 @@ const UploadPage: React.FC<{
                 </div>
                 <div className="flex justify-end gap-3 pt-4">
                     <button onClick={onClose} className="px-5 py-2 rounded-lg text-sm font-semibold text-stone-700 dark:text-stone-200 bg-stone-100 dark:bg-slate-700 hover:bg-stone-200 dark:hover:bg-slate-600 transition-colors">Annuler</button>
-                    <button onClick={handleSubmit} disabled={!caption || !imageSrc} className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-amber-500 hover:bg-amber-600 disabled:bg-stone-300 dark:disabled:bg-slate-600 transition-colors">Publier</button>
+                    <button onClick={handleSubmit} disabled={!caption || !imageSrc} className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 disabled:bg-stone-300 dark:disabled:bg-slate-600 transition-colors">Publier</button>
                 </div>
             </div>
         </div>
@@ -319,7 +320,7 @@ const Header: React.FC<{
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const navLinkClasses = (page: string) => `flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${currentPage === page ? 'bg-amber-500 text-white' : 'text-stone-600 dark:text-stone-300 hover:bg-amber-100 dark:hover:bg-slate-700'}`;
+    const navLinkClasses = (page: string) => `flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${currentPage === page ? 'bg-orange-500 text-white' : 'text-stone-600 dark:text-stone-300 hover:bg-orange-100 dark:hover:bg-slate-700'}`;
 
     return (
         <header className="sticky top-0 z-40 bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border-b border-stone-200 dark:border-slate-800">
@@ -331,6 +332,9 @@ const Header: React.FC<{
                            <button onClick={() => onNavigate('home')} className={navLinkClasses('home')}><HomeIcon className="w-5 h-5"/>Accueil</button>
                            <button onClick={() => onNavigate('gallery')} className={navLinkClasses('gallery')}><PhotoIcon className="w-5 h-5"/>Galerie</button>
                            <button onClick={() => onNavigate('upload')} className={navLinkClasses('upload')}><ArrowUpTrayIconUser className="w-5 h-5"/>Partager</button>
+                           {currentUser.id === 'user1' && (
+                              <button onClick={() => onNavigate('admin')} className={navLinkClasses('admin')}><ShieldCheckIcon className="w-5 h-5"/>Admin</button>
+                           )}
                         </nav>
                     </div>
                     <div className="flex items-center gap-4">
@@ -339,7 +343,7 @@ const Header: React.FC<{
                         </button>
                         <div className="relative" ref={profileRef}>
                             <button onClick={() => setIsProfileOpen(o => !o)}>
-                                <img src={currentUser.avatar} alt={currentUser.name} className="w-9 h-9 rounded-full ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 ring-amber-400"/>
+                                <img src={currentUser.avatar} alt={currentUser.name} className="w-9 h-9 rounded-full ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 ring-orange-400"/>
                             </button>
                             {isProfileOpen && (
                                 <div className="absolute right-0 mt-2 w-56 origin-top-right bg-white dark:bg-slate-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none animate-fade-in-up-sm">
@@ -377,11 +381,11 @@ const Header: React.FC<{
 
 export default function App() {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [users] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>(initialUsers);
   const [photos, setPhotos] = useState<Photo[]>(initialPhotos);
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
-  const [currentPage, setCurrentPage] = useState<'home' | 'gallery' | 'upload'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'gallery' | 'upload' | 'admin'>('home');
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   
   useEffect(() => {
@@ -438,6 +442,43 @@ export default function App() {
       setCurrentPage('gallery');
   };
   
+  const handleDeletePhoto = (photoId: number) => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette photo ? Cette action est irréversible.")) {
+      setPhotos(prevPhotos => prevPhotos.filter(p => p.id !== photoId));
+      if (selectedPhoto?.id === photoId) {
+        setSelectedPhoto(null);
+      }
+    }
+  };
+
+  const handleDeleteUser = (userId: string) => {
+    if (userId === 'user1') {
+      alert("L'administrateur ne peut pas être supprimé.");
+      return;
+    }
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ? Toutes ses photos, commentaires et 'j'aime' seront également supprimés.")) {
+      // Remove user
+      setUsers(prevUsers => prevUsers.filter(u => u.id !== userId));
+      
+      // Remove user's content
+      setPhotos(prevPhotos => {
+        // Filter out photos owned by the user
+        const photosWithoutUserOwned = prevPhotos.filter(p => p.ownerId !== userId);
+        // Filter out likes and comments from the user on other photos
+        return photosWithoutUserOwned.map(p => ({
+          ...p,
+          likes: p.likes.filter(like => like.userId !== userId),
+          comments: p.comments.filter(comment => comment.userId !== userId),
+        }));
+      });
+
+      // If the deleted user is the current user, switch to the admin
+      if(currentUser.id === userId) {
+          setCurrentUser(users.find(u => u.id === 'user1') || users[0]);
+      }
+    }
+  };
+
   const renderCurrentPage = () => {
     switch (currentPage) {
         case 'home':
@@ -446,13 +487,19 @@ export default function App() {
             return <GalleryPage photos={photos} users={users} currentUser={currentUser} onSelectPhoto={setSelectedPhoto}/>;
         case 'upload':
             return <UploadPage onClose={() => setCurrentPage('gallery')} onUpload={handleUpload} users={users} currentUser={currentUser} />;
+        case 'admin':
+            if (currentUser.id !== 'user1') {
+                setCurrentPage('home'); // Redirect if not admin
+                return <HomePage photos={photos} users={users} />;
+            }
+            return <AdminPage users={users} photos={photos} onDeleteUser={handleDeleteUser} onDeletePhoto={handleDeletePhoto} />;
         default:
             return <HomePage photos={photos} users={users} />;
     }
   }
 
   return (
-    <div className="bg-amber-50 dark:bg-slate-900 min-h-screen font-sans text-stone-800 dark:text-stone-200">
+    <div className="bg-orange-50 dark:bg-slate-900 min-h-screen font-sans text-stone-800 dark:text-stone-200">
       <Header 
         currentPage={currentPage}
         onNavigate={(page) => setCurrentPage(page as any)}
@@ -477,7 +524,7 @@ export default function App() {
         
         <button
           onClick={() => setIsChatOpen(!isChatOpen)}
-          className={`bg-amber-500 hover:bg-amber-600 text-white font-bold p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-amber-300 ${isChatOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`}
+          className={`bg-orange-500 hover:bg-orange-600 text-white font-bold p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-orange-300 ${isChatOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`}
           aria-label="Open chat"
         >
           <ChatIcon className="w-8 h-8" />

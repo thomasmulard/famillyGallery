@@ -11,7 +11,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
   const isUser = message.role === Role.USER;
 
   const bubbleClasses = isUser
-    ? 'bg-amber-400 text-white rounded-br-none self-end'
+    ? 'bg-orange-500 text-white rounded-br-none self-end'
     : 'bg-stone-200 dark:bg-slate-700 text-stone-800 dark:text-stone-200 rounded-bl-none self-start';
   
   const containerClasses = isUser ? 'flex justify-end' : 'flex justify-start';

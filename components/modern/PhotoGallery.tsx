@@ -1,7 +1,6 @@
-
 import React, { useState, useMemo } from 'react';
 import { PhotoCard } from './PhotoCard';
-import type { Photo, User } from '../types';
+import type { Photo, DbUser as User } from '@/types/modern';
 import { SearchIcon } from './icons';
 
 interface PhotoGalleryProps {
@@ -53,7 +52,10 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, users, onSel
                     <button onClick={() => setUploaderFilter('all')} className={filterButtonClasses(uploaderFilter === 'all')}>Tous</button>
                     {users.map(user => (
                     <button key={user.id} onClick={() => setUploaderFilter(user.id)} className={filterButtonClasses(uploaderFilter === user.id)}>
-                        <div className="flex items-center gap-2"><img src={user.avatar} alt={user.name} className="w-5 h-5 rounded-full" /><span>{user.name}</span></div>
+                        <div className="flex items-center gap-2">
+                            <img src={user.avatar_url || '/default-avatar.png'} alt={user.name || 'User'} className="w-5 h-5 rounded-full" />
+                            <span>{user.name}</span>
+                        </div>
                     </button>
                     ))}
                 </div>
@@ -64,7 +66,10 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, users, onSel
                     <button onClick={() => setTaggedFilter('all')} className={filterButtonClasses(taggedFilter === 'all')}>Tous</button>
                     {users.map(user => (
                     <button key={user.id} onClick={() => setTaggedFilter(user.id)} className={filterButtonClasses(taggedFilter === user.id)}>
-                        <div className="flex items-center gap-2"><img src={user.avatar} alt={user.name} className="w-5 h-5 rounded-full" /><span>{user.name}</span></div>
+                        <div className="flex items-center gap-2">
+                            <img src={user.avatar_url || '/default-avatar.png'} alt={user.name || 'User'} className="w-5 h-5 rounded-full" />
+                            <span>{user.name}</span>
+                        </div>
                     </button>
                     ))}
                 </div>
