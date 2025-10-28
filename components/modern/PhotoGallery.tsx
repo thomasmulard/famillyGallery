@@ -53,7 +53,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, users, onSel
                     {users.map(user => (
                     <button key={user.id} onClick={() => setUploaderFilter(user.id)} className={filterButtonClasses(uploaderFilter === user.id)}>
                         <div className="flex items-center gap-2">
-                            <img src={user.avatar_url || '/default-avatar.png'} alt={user.name || 'User'} className="w-5 h-5 rounded-full" />
+                            <img src={user.avatar_url || '/default-avatar.svg'} alt={user.name || 'User'} className="w-5 h-5 rounded-full" />
                             <span>{user.name}</span>
                         </div>
                     </button>
@@ -67,7 +67,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, users, onSel
                     {users.map(user => (
                     <button key={user.id} onClick={() => setTaggedFilter(user.id)} className={filterButtonClasses(taggedFilter === user.id)}>
                         <div className="flex items-center gap-2">
-                            <img src={user.avatar_url || '/default-avatar.png'} alt={user.name || 'User'} className="w-5 h-5 rounded-full" />
+                            <img src={user.avatar_url || '/default-avatar.svg'} alt={user.name || 'User'} className="w-5 h-5 rounded-full" />
                             <span>{user.name}</span>
                         </div>
                     </button>

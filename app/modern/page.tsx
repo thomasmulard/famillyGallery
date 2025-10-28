@@ -47,10 +47,9 @@ const PhotoModal: React.FC<{
             <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
                 <div className="w-full md:w-2/3 bg-black flex items-center justify-center">
                     <img src={photo.url} alt={photo.caption} className="w-full h-full object-contain" />
-                </div>
-                <div className="w-full md:w-1/3 flex flex-col text-stone-800 dark:text-stone-200">
+                </div>                <div className="w-full md:w-1/3 flex flex-col text-stone-800 dark:text-stone-200">
                     <header className="p-4 border-b border-stone-200 dark:border-slate-700 flex items-center gap-3">
-                        <img src={photoOwner?.avatar_url || '/default-avatar.png'} alt={photoOwner?.name || 'Utilisateur'} className="w-10 h-10 rounded-full" />
+                        <img src={photoOwner?.avatar_url || '/default-avatar.svg'} alt={photoOwner?.name || 'Utilisateur'} className="w-10 h-10 rounded-full" />
                         <div>
                             <p className="font-bold">{photoOwner?.name}</p>
                             <p className="text-sm text-stone-600 dark:text-stone-400">{photo.caption}</p>
@@ -61,10 +60,9 @@ const PhotoModal: React.FC<{
                     </header>
                     <div className="flex-1 overflow-y-auto p-4 space-y-4">
                         {photo.comments.map(comment => {
-                            const commentUser = findUser(comment.userId, users);
-                            return (
+                            const commentUser = findUser(comment.userId, users);                            return (
                                 <div key={comment.id} className="flex items-start gap-3">
-                                    <img src={commentUser?.avatar_url || '/default-avatar.png'} alt={commentUser?.name || 'Utilisateur'} className="w-8 h-8 rounded-full mt-1" />
+                                    <img src={commentUser?.avatar_url || '/default-avatar.svg'} alt={commentUser?.name || 'Utilisateur'} className="w-8 h-8 rounded-full mt-1" />
                                     <div>
                                         <p className="text-sm"><span className="font-bold">{commentUser?.name}</span> {comment.text}</p>
                                     </div>
@@ -78,10 +76,9 @@ const PhotoModal: React.FC<{
                             <button onClick={() => onLike(photo.id)} className="flex items-center gap-1.5 group">
                                 <HeartIcon className={`w-7 h-7 transition-all ${hasLiked ? 'text-red-500 fill-current' : 'text-stone-700 dark:text-stone-300 group-hover:text-red-500'}`} />
                             </button>
-                             <p className="text-sm font-semibold">{photo.likes.length} like{photo.likes.length !== 1 && 's'}</p>
-                        </div>
+                             <p className="text-sm font-semibold">{photo.likes.length} like{photo.likes.length !== 1 && 's'}</p>                        </div>
                         <form onSubmit={handleCommentSubmit} className="flex items-center space-x-2">
-                            <img src={currentUser.image || '/default-avatar.png'} alt={currentUser.name || 'Utilisateur'} className="w-8 h-8 rounded-full"/>
+                            <img src={currentUser.image || '/default-avatar.svg'} alt={currentUser.name || 'Utilisateur'} className="w-8 h-8 rounded-full"/>
                             <input
                                 type="text"
                                 value={commentText}
@@ -191,10 +188,9 @@ const UploadPage: React.FC<{
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-2">Qui est sur la photo ?</label>
-                    <div className="flex flex-wrap gap-3">
-                        {users.map(user => (
+                    <div className="flex flex-wrap gap-3">                        {users.map(user => (
                             <button key={user.id} onClick={() => handleTagUser(user.id)} className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-all ${taggedUserIds.includes(user.id) ? 'bg-orange-500 text-white ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-800 ring-orange-500' : 'bg-stone-100 dark:bg-slate-700 hover:bg-stone-200 dark:hover:bg-slate-600'}`}>
-                                <img src={user.avatar_url || '/default-avatar.png'} alt={user.name || 'Utilisateur'} className="w-6 h-6 rounded-full"/>
+                                <img src={user.avatar_url || '/default-avatar.svg'} alt={user.name || 'Utilisateur'} className="w-6 h-6 rounded-full"/>
                                 {user.name}
                             </button>
                         ))}
@@ -259,10 +255,9 @@ const Header: React.FC<{
                     <div className="flex items-center space-x-3">
                         <button onClick={onThemeChange} className="p-2 rounded-full text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-slate-800 transition-colors">
                             {theme === 'dark' ? <SunIcon className="w-6 h-6"/> : <MoonIcon className="w-6 h-6"/>}
-                        </button>
-                        <div className="relative" ref={profileRef}>
+                        </button>                        <div className="relative" ref={profileRef}>
                             <button onClick={() => setIsProfileOpen(o => !o)} className="flex items-center">
-                                <img className="h-9 w-9 rounded-full ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 ring-primary" src={currentUser.image || '/default-avatar.png'} alt="" />
+                                <img className="h-9 w-9 rounded-full ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 ring-primary" src={currentUser.image || '/default-avatar.svg'} alt="" />
                             </button>
                             {isProfileOpen && (
                                 <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-slate-800 ring-1 ring-black ring-opacity-5 focus:outline-none animate-fade-in-up-sm">
