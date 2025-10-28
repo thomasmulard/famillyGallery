@@ -4,33 +4,34 @@
 
 @layer base {
   :root {
-    --background: 35 20% 96%;
-    --foreground: 30 10% 15%;
+    --background: 38 90% 96%;
+    --foreground: 25 5% 20%;
     --card: 0 0% 100%;
-    --border: 32 15% 90%;
-    --muted: 35 20% 96%;
-    --muted-foreground: 30 8% 42%;
-    --primary: 28 20% 45%;
-    --primary-foreground: 35 25% 98%;
-    --secondary: 45 20% 52%;
-    --secondary-foreground: 30 10% 15%;
-    --accent: 30 38% 65%;
-    --accent-foreground: 30 10% 15%;
+    --border: 30 15% 88%;
+    --muted: 38 50% 95%;
+    --muted-foreground: 25 5% 45%;
+    --primary: 38 92% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 25 5% 45%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 38 100% 60%;
+    --accent-foreground: 0 0% 100%;
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background: 30 10% 10%;
-    --foreground: 35 20% 95%;
-    --card: 30 8% 12%;
-    --border: 30 8% 20%;
-    --muted: 30 8% 15%;
-    --muted-foreground: 30 8% 65%;
-    --primary: 28 25% 55%;
-    --primary-foreground: 35 25% 98%;
-    --secondary: 45 20% 45%;
-    --secondary-foreground: 35 20% 95%;
-    --accent: 30 38% 50%;
-    --accent-foreground: 35 20% 95%;
+    --background: 222 47% 11%;
+    --foreground: 25 5% 90%;
+    --card: 222 47% 11%;
+    --border: 217 33% 17%;
+    --muted: 222 47% 11%;
+    --muted-foreground: 215 16% 47%;
+    --primary: 38 92% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --accent: 38 100% 60%;
+    --accent-foreground: 0 0% 100%;
   }
 
   * {
@@ -43,7 +44,7 @@
 }
 
 @layer utilities {
-  /* Animation fade-in pour modal */
+  /* Animations modernes */
   @keyframes fade-in {
     from {
       opacity: 0;
@@ -53,8 +54,38 @@
     }
   }
 
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in-up-sm {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
   .animate-fade-in {
-    animation: fade-in 0.2s ease-out;
+    animation: fade-in 0.3s ease-out;
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.3s ease-out;
+  }
+
+  .animate-fade-in-up-sm {
+    animation: fade-in-up-sm 0.2s ease-out;
   }
 
   /* Optimisations des performances */

@@ -189,14 +189,12 @@ export default function GalleryHeader({
             Filtres
           </button>
         </div>
-      </div>
-
-      {/* Filter Panel */}
+      </div>      {/* Filter Panel */}
       {showFilters && (
-        <div className="bg-card border border-border rounded-xl p-6 mb-6 animate-slide-down">
+        <div className="bg-primary/5 dark:bg-card rounded-xl p-6 mb-6 animate-fade-in-up-sm border border-primary/20">
           <div className="grid grid-cols-1 gap-6">
             <div>
-              <h4 className="text-sm font-semibold mb-3">Catégories</h4>
+              <h4 className="text-sm font-semibold mb-3 text-foreground">Catégories</h4>
               <div className="flex flex-wrap gap-3">
                 {[
                   { value: 'all', label: 'Toutes les photos' },
@@ -204,14 +202,14 @@ export default function GalleryHeader({
                   { value: 'fetes', label: 'Fêtes' },
                   { value: 'quotidien', label: 'Quotidien' },
                 ].map((cat) => (
-                  <label key={cat.value} className="flex items-center gap-2 cursor-pointer">
+                  <label key={cat.value} className="flex items-center gap-2 cursor-pointer group">
                     <input
                       type="checkbox"
                       checked={filters.categories.includes(cat.value)}
                       onChange={() => handleCategoryChange(cat.value)}
                       className="w-4 h-4 accent-primary cursor-pointer"
                     />
-                    <span className="text-sm">{cat.label}</span>
+                    <span className="text-sm group-hover:text-primary transition-colors">{cat.label}</span>
                   </label>
                 ))}
               </div>
@@ -219,7 +217,7 @@ export default function GalleryHeader({
 
             {/* Personnes taguées */}
             <div>
-              <h4 className="text-sm font-semibold mb-3">Personnes</h4>
+              <h4 className="text-sm font-semibold mb-3 text-foreground">Personnes</h4>
               {people.length === 0 ? (
                 <div className="text-sm text-muted-foreground">Aucun membre disponible</div>
               ) : (
@@ -230,7 +228,7 @@ export default function GalleryHeader({
                       <button
                         key={p.id}
                         onClick={() => togglePerson(p.id)}
-                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm transition-colors ${selected ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border hover:bg-muted'}`}
+                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold transition-all ${selected ? 'bg-primary text-white shadow-md ring-2 ring-offset-2 ring-offset-background ring-primary' : 'bg-card hover:bg-muted border border-border'}`}
                         title={p.displayName}
                       >
                         {p.avatar_url ? (
@@ -251,7 +249,7 @@ export default function GalleryHeader({
 
             {/* Uploader */}
             <div>
-              <h4 className="text-sm font-semibold mb-3">Ajoutées par</h4>
+              <h4 className="text-sm font-semibold mb-3 text-foreground">Ajoutées par</h4>
               {uploaders.length === 0 ? (
                 <div className="text-sm text-muted-foreground">Aucun uploader</div>
               ) : (
@@ -262,7 +260,7 @@ export default function GalleryHeader({
                       <button
                         key={u.id}
                         onClick={() => toggleUploader(u.id)}
-                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm transition-colors ${selected ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border hover:bg-muted'}`}
+                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold transition-all ${selected ? 'bg-primary text-white shadow-md ring-2 ring-offset-2 ring-offset-background ring-primary' : 'bg-card hover:bg-muted border border-border'}`}
                         title={u.displayName}
                       >
                         {u.avatar_url ? (

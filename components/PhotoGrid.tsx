@@ -107,13 +107,12 @@ export default function PhotoGrid({ photos, viewMode, onPhotoClick }: PhotoGridP
       </div>
     )
   }
-
   // Configuration des grilles selon le mode
   const gridConfig = {
     compact: 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2',
     comfortable: 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6',
     spacious: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8',
-    masonry: 'columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4'
+    masonry: 'columns-2 md:columns-3 lg:columns-4 gap-4'
   }
 
   const cardSizeConfig = {
@@ -165,21 +164,25 @@ export default function PhotoGrid({ photos, viewMode, onPhotoClick }: PhotoGridP
               className="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
               loading={index < 8 ? "eager" : "lazy"}
             />
-            
-            {/* Overlay - masqué en mode compact */}
+              {/* Overlay - masqué en mode compact */}
             {viewMode !== 'compact' && (
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className={`absolute bottom-0 left-0 right-0 text-white ${paddingConfig[viewMode as keyof typeof paddingConfig]}`}>
-                  <h3 className={`font-semibold mb-1 drop-shadow-md ${viewMode === 'spacious' ? 'text-xl' : 'text-base'}`}>
+                  <h3 className={`font-semibold mb-1 drop-shadow-md ${viewMode === 'spacious' ? 'text-xl' : 'text-sm md:text-base'}`}>
                     {photo.title}
                   </h3>
-                  <p className="text-sm text-white/90">{photo.date}</p>
-                  {viewMode === 'spacious' && photo.location && (
-                    <p className="text-sm text-white/80 flex items-center gap-1 mt-1">
-                      <MapPin size={14} />
-                      {photo.location}
-                    </p>
-                  )}
+                  <div className="flex items-center space-x-4 mt-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                    <div className="flex items-center space-x-1">
+                      <Heart className="w-4 h-4" />
+                      <span>{photo.reactions?.length || 0}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                      <span>{photo.comments?.length || 0}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

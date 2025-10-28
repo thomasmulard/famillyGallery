@@ -219,7 +219,6 @@ export default function PhotoModalSimple({ photo, photos, onClose, onNavigate }:
   }, [handleKeyDown])
 
   const loveCount = reactions.filter(r => r.type === 'love').length
-
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-[1000] flex items-center justify-center animate-fade-in" onClick={onClose}>
@@ -228,7 +227,7 @@ export default function PhotoModalSimple({ photo, photos, onClose, onNavigate }:
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/70 dark:bg-black/80 backdrop-blur-sm"
         />
 
         {/* Content Container - Layout Horizontal adaptatif */}
@@ -237,12 +236,12 @@ export default function PhotoModalSimple({ photo, photos, onClose, onNavigate }:
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="relative z-10 w-[95vw] max-w-6xl mx-4 bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row"
+          className="relative z-10 w-[95vw] max-w-6xl mx-4 bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row"
           style={{ maxHeight: '90vh', height: '90vh' }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Partie Gauche - Image (s'adapte à la taille disponible) */}
-          <div className="relative flex-1 bg-black/10 dark:bg-card flex items-center justify-center overflow-hidden max-h-[40vh] md:max-h-none md:min-h-[600px]">
+          <div className="relative flex-1 bg-black flex items-center justify-center overflow-hidden max-h-[40vh] md:max-h-none md:min-h-[600px]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={photo.src}
@@ -254,24 +253,23 @@ export default function PhotoModalSimple({ photo, photos, onClose, onNavigate }:
             {/* Navigation Buttons - Sur l'image */}
             <button
               onClick={(e) => { e.stopPropagation(); onNavigate('prev'); }}
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/90 hover:bg-white rounded-full transition-all duration-300 hover:scale-110 shadow-lg z-40"
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/90 dark:bg-slate-700/90 hover:bg-white dark:hover:bg-slate-700 rounded-full transition-all duration-300 hover:scale-110 shadow-lg z-40"
               aria-label="Photo précédente"
             >
-              <ChevronLeft size={24} className="text-stone-800" />
-            </button>
-            <button
+              <ChevronLeft size={24} className="text-stone-800 dark:text-stone-200" />
+            </button>            <button
               onClick={(e) => { e.stopPropagation(); onNavigate('next'); }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/90 hover:bg-white rounded-full transition-all duration-300 hover:scale-110 shadow-lg z-40"
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/90 dark:bg-slate-700/90 hover:bg-white dark:hover:bg-slate-700 rounded-full transition-all duration-300 hover:scale-110 shadow-lg z-40"
               aria-label="Photo suivante"
             >
-              <ChevronRight size={24} className="text-stone-800" />
+              <ChevronRight size={24} className="text-stone-800 dark:text-stone-200" />
             </button>
           </div>
 
           {/* Partie Droite - Infos et Commentaires */}
-          <div className="w-full md:w-[380px] flex flex-col bg-white dark:bg-card max-h-[50vh] md:max-h-none">
+          <div className="w-full md:w-[380px] flex flex-col bg-white dark:bg-slate-800 max-h-[50vh] md:max-h-none">
             {/* Header avec avatar et nom */}
-            <div className="p-4 border-b border-stone-200 dark:border-border flex items-center justify-between flex-shrink-0">
+            <div className="p-4 border-b border-stone-200 dark:border-slate-700 flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <div className="relative w-10 h-10 rounded-full overflow-hidden bg-muted flex-shrink-0">
                   {photo.user?.avatar_url ? (
@@ -288,16 +286,16 @@ export default function PhotoModalSimple({ photo, photos, onClose, onNavigate }:
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-stone-800 dark:text-foreground truncate">
+                  <p className="font-bold text-stone-800 dark:text-stone-200 truncate">
                     {photo.user ? displayName(photo.user) : 'Utilisateur'}
                   </p>
-                  <p className="text-sm text-stone-600 dark:text-muted-foreground truncate">{photo.title}</p>
+                  <p className="text-sm text-stone-600 dark:text-stone-400 truncate">{photo.title}</p>
                 </div>
               </div>
               {/* Close Button */}
               <button
                 onClick={onClose}
-                className="text-stone-400 dark:text-muted-foreground hover:text-stone-600 dark:hover:text-foreground p-1.5 hover:bg-stone-100 dark:hover:bg-muted rounded-full transition-all flex-shrink-0"
+                className="text-stone-400 dark:text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1.5 hover:bg-stone-100 dark:hover:bg-slate-600 rounded-full transition-all flex-shrink-0"
                 aria-label="Fermer"
               >
                 <X size={22} />

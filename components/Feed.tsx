@@ -85,7 +85,6 @@ export default function Feed({ onPhotoClick }: FeedProps) {
       window.removeEventListener('feed:refresh', onExternalRefresh)
     }
   }, [refreshKey, success, errorToast])
-
   const refresh = () => {
     setRefreshKey(k => k + 1)
   }
@@ -94,17 +93,15 @@ export default function Feed({ onPhotoClick }: FeedProps) {
     <div className="space-y-10">
       <header className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Fil d'actualité</h2>
-          <p className="text-sm text-muted-foreground">Dernières photos, commentaires et réactions</p>
+          <h2 className="text-3xl font-bold">Fil d'actualité</h2>
+          <p className="text-sm text-muted-foreground mt-1">Dernières photos, commentaires et réactions</p>
         </div>
         <button
           onClick={refresh}
-          className="relative px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+          className={`px-4 py-2 rounded-lg bg-card border border-border hover:bg-muted transition-colors text-sm font-medium flex items-center gap-2 ${hasUpdates ? 'ring-2 ring-primary animate-pulse' : ''}`}
         >
+          {hasUpdates && <span className="w-2 h-2 bg-primary rounded-full"></span>}
           Actualiser
-          {hasUpdates && (
-            <span className="absolute -top-1 -right-1 inline-flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full text-[10px] bg-red-500 text-white">New</span>
-          )}
         </button>
       </header>
 
@@ -129,7 +126,7 @@ export default function Feed({ onPhotoClick }: FeedProps) {
             {latestPhotos.map((p) => (
               <div 
                 key={p.id} 
-                className="group rounded-xl overflow-hidden bg-muted/30 border border-border cursor-pointer hover:shadow-lg transition-shadow"
+                className="group rounded-xl overflow-hidden bg-card border border-border cursor-pointer hover:shadow-lg transition-shadow"
                 onClick={() => onPhotoClick?.(p.id)}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
